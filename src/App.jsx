@@ -1,0 +1,30 @@
+import { Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import FilmsOfMonth from './pages/FilmsOfMonth'
+import Discussion from './pages/Discussion'
+import PostDetail from './pages/PostDetail'
+import Suggestions from './pages/Suggestions'
+
+function App() {
+  return (
+    <>
+      <Navbar />
+      <div style={{ marginLeft: '260px', minHeight: '100vh' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/film-of-the-month" element={<FilmsOfMonth />} />
+          <Route path="/discussion" element={<Discussion />} />
+          <Route path="/discussion/:id" element={<PostDetail />} />
+          <Route path="/suggestions" element={<Suggestions />} />
+        </Routes>
+      </div>
+    </>
+  )
+}
+
+export default App
