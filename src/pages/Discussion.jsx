@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { Link } from 'react-router-dom'
+import './Discussion.css'
 
 function getMonthYear(date) {
   return date.toLocaleString('default', { month: 'long', year: 'numeric' })
@@ -11,7 +12,7 @@ function getWeekDates(week, date) {
   const month = date.getMonth()
   const startDay = (week - 1) * 7 + 1
   const endDay = week === 4
-    ? new Date(year, month + 1, 0).getDate() // last day of month
+    ? new Date(year, month + 1, 0).getDate()
     : week * 7
   const start = new Date(year, month, startDay)
   const end = new Date(year, month, endDay)
@@ -19,54 +20,68 @@ function getWeekDates(week, date) {
   return `${fmt(start)} - ${fmt(end)}`
 }
 
-const autoPoints = [
+function detectCurrentWeek() {
+  const day = new Date().getDate()
+  if (day <= 7) return 1
+  if (day <= 14) return 2
+  if (day <= 21) return 3
+  return 4
+}
+
+// Parse tag prefix from post title: [Film Title] or [VS]
+function parsePostTag(title) {
+  const match = title?.match(/^\[(.*?)\]\s*/)
+  if (!match) return { tag: null, cleanTitle: title }
+  return { tag: match[1], cleanTitle: title.slice(match[0].length) }
+}
+
+const defaultFilmPrompts = [
   'What were your first impressions?',
-  'Which scene stood out the most to you?',
-  'How did this film make you feel?',
-  'Would you recommend this to others?',
-  'How does it compare to other films you have seen recently?'
+  'Which scene stood out the most?',
+  'How did the performances land for you?',
 ]
 
 export default function Discussion() {
   const [films, setFilms] = useState([])
+  const [ratings, setRatings] = useState({})
   const [user, setUser] = useState(null)
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [currentWeek, setCurrentWeek] = useState(null)
-  const [expandedWeeks, setExpandedWeeks] = useState({})
+  const [currentWeek] = useState(detectCurrentWeek)
+  const [activeWeek, setActiveWeek] = useState(detectCurrentWeek)
   const [posts, setPosts] = useState({})
   const [postInputs, setPostInputs] = useState({})
+  const [postTag, setPostTag] = useState('general')
+  const [filter, setFilter] = useState('all')
+  const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
-    detectCurrentWeek()
   }, [])
 
   useEffect(() => {
     fetchFilms()
   }, [selectedDate])
 
-  function detectCurrentWeek() {
-    const day = new Date().getDate()
-    if (day <= 7) setCurrentWeek(1)
-    else if (day <= 14) setCurrentWeek(2)
-    else if (day <= 21) setCurrentWeek(3)
-    else setCurrentWeek(4)
-  }
-
-  function goToPreviousMonth() {
-    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
-  }
-
-  function goToNextMonth() {
-    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
-  }
+  useEffect(() => {
+    fetchPosts(activeWeek)
+  }, [activeWeek, selectedDate])
 
   function isCurrentMonth() {
     const now = new Date()
     return selectedDate.getMonth() === now.getMonth() &&
       selectedDate.getFullYear() === now.getFullYear()
+  }
+
+  function goToPreviousMonth() {
+    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+    setActiveWeek(1)
+  }
+
+  function goToNextMonth() {
+    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+    setActiveWeek(1)
   }
 
   async function fetchFilms() {
@@ -77,223 +92,421 @@ export default function Discussion() {
       .eq('month_year', monthYear)
       .order('week_number', { ascending: true })
     setFilms(data || [])
-
-    // Auto expand current week
-    const day = new Date().getDate()
-    let week = 1
-    if (day <= 7) week = 1
-    else if (day <= 14) week = 2
-    else if (day <= 21) week = 3
-    else week = 4
-    setExpandedWeeks({ [week]: true })
-    fetchPosts(week, monthYear)
+    setRatings({})
+    if (data) data.forEach(film => fetchAverageRating(film.id))
+    // Auto-select current week if current month
+    if (isCurrentMonth()) setActiveWeek(detectCurrentWeek())
   }
 
-  async function fetchPosts(week, monthYear) {
-    const my = monthYear || getMonthYear(selectedDate)
+  async function fetchAverageRating(filmId) {
+    const { data } = await supabase
+      .from('ratings')
+      .select('score')
+      .eq('film_id', filmId)
+    if (data && data.length > 0) {
+      const avg = data.reduce((sum, r) => sum + r.score, 0) / data.length
+      setRatings(prev => ({ ...prev, [filmId]: avg }))
+    }
+  }
+
+  async function fetchPosts(week) {
+    const monthYear = getMonthYear(selectedDate)
     const { data } = await supabase
       .from('posts')
       .select('*, profiles(username)')
       .eq('week_number', week)
-      .eq('month_year', my)
+      .eq('month_year', monthYear)
       .order('created_at', { ascending: false })
     setPosts(prev => ({ ...prev, [week]: data || [] }))
   }
 
-  function toggleWeek(week) {
-    setExpandedWeeks(prev => {
-      const isOpen = prev[week]
-      if (!isOpen) fetchPosts(week)
-      return { ...prev, [week]: !isOpen }
-    })
-  }
-
-  async function handlePost(e, week) {
+  async function handlePost(e) {
     e.preventDefault()
     if (!user) return
     const monthYear = getMonthYear(selectedDate)
-    const input = postInputs[week] || {}
+    const input = postInputs[activeWeek] || {}
+    const weekFilms = films.filter(f => f.week_number === activeWeek)
+
+    // Build title with tag prefix
+    let title = input.title
+    if (postTag === 'film0' && weekFilms[0]) {
+      title = `[${weekFilms[0].title}] ${input.title}`
+    } else if (postTag === 'film1' && weekFilms[1]) {
+      title = `[${weekFilms[1].title}] ${input.title}`
+    } else if (postTag === 'vs') {
+      title = `[VS] ${input.title}`
+    }
+
     const { error } = await supabase
       .from('posts')
       .insert({
         user_id: user.id,
-        title: input.title,
+        title,
         body: input.body,
-        week_number: week,
+        week_number: activeWeek,
         month_year: monthYear
       })
     if (!error) {
-      setPostInputs(prev => ({ ...prev, [week]: { title: '', body: '' } }))
-      fetchPosts(week)
+      setPostInputs(prev => ({ ...prev, [activeWeek]: { title: '', body: '' } }))
+      setPostTag('general')
+      fetchPosts(activeWeek)
     }
   }
 
-  function getDiscussionPoints(weekFilms) {
-    const allPoints = []
-    weekFilms.forEach(film => {
-      if (film.discussion_points) {
-        film.discussion_points.split('|').forEach(p => allPoints.push(p.trim()))
-      }
-    })
-    // Fill remaining slots with auto points
-    const needed = Math.max(0, 5 - allPoints.length)
-    return [...allPoints, ...autoPoints.slice(0, needed)]
+  // Get films for active week
+  const weekFilms = films.filter(f => f.week_number === activeWeek)
+  const weekTheme = weekFilms[0]?.week_theme
+
+  // Build discussion prompts
+  function getFilmPrompts(film) {
+    if (film?.discussion_points) {
+      return film.discussion_points.split('|').map(p => p.trim())
+    }
+    return defaultFilmPrompts
   }
 
+  function getComparePrompts() {
+    if (weekFilms.length < 2) return []
+    const a = weekFilms[0].title
+    const b = weekFilms[1].title
+    return [
+      `Which film had a stronger opening — ${a} or ${b}?`,
+      `How do the directors' visual styles differ between the two?`,
+      `If you could only recommend one to a friend, which would it be?`,
+      `Which performance stood out more across both films?`,
+      `How does each film handle its central theme differently?`,
+    ]
+  }
+
+  // Filter posts
+  const weekPosts = posts[activeWeek] || []
+  const filteredPosts = weekPosts.filter(post => {
+    if (filter === 'all') return true
+    const { tag } = parsePostTag(post.title)
+    if (filter === 'vs') return tag === 'VS'
+    if (filter === 'general') return !tag
+    if (filter === 'film0') return tag === weekFilms[0]?.title
+    if (filter === 'film1') return tag === weekFilms[1]?.title
+    return true
+  })
+
+  // Check which weeks have films
+  const weeksWithFilms = new Set(films.map(f => f.week_number))
+
   return (
-    <div style={{ maxWidth: '750px', margin: '2rem auto', padding: '1rem' }}>
+    <div className="page page-wide">
 
       {/* Month Navigator */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: '#1a1a2e',
-        border: '1px solid #333',
-        borderRadius: '12px',
-        padding: '1rem 1.5rem',
-        marginBottom: '2rem'
-      }}>
-        <button onClick={goToPreviousMonth} style={{ background: '#333', fontSize: '1.2rem', padding: '0.3rem 0.9rem' }}>←</button>
+      <div className="month-nav">
+        <button onClick={goToPreviousMonth} className="month-nav-btn">←</button>
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ margin: 0 }}>💬 {getMonthYear(selectedDate)}</h2>
-          {isCurrentMonth() && (
-            <span style={{ color: '#ff6b6b', fontSize: '0.8rem', fontWeight: 'bold' }}>CURRENT MONTH</span>
-          )}
+          <h2>💬 {getMonthYear(selectedDate)}</h2>
+          {isCurrentMonth() && <span className="month-label">CURRENT MONTH</span>}
         </div>
-        <button onClick={goToNextMonth} style={{ background: '#333', fontSize: '1.2rem', padding: '0.3rem 0.9rem' }}>→</button>
+        <button onClick={goToNextMonth} className="month-nav-btn">→</button>
       </div>
 
-      {films.length === 0 ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          background: '#1a1a2e',
-          borderRadius: '12px',
-          border: '1px solid #333',
-          color: '#888'
-        }}>
-          <p style={{ fontSize: '1.2rem' }}>No discussions for this month yet.</p>
-        </div>
-      ) : (
-        [1, 2, 3, 4].map(week => {
-          const weekFilms = films.filter(f => f.week_number === week)
-          if (weekFilms.length === 0) return null
-          const isCurrentWeek = isCurrentMonth() && week === currentWeek
-          const isExpanded = expandedWeeks[week]
-          const discussionPoints = getDiscussionPoints(weekFilms)
-
+      {/* Week Tabs */}
+      <div className="disc-tabs">
+        {[1, 2, 3, 4].map(week => {
+          const isCurrent = isCurrentMonth() && week === currentWeek
+          const isActive = week === activeWeek
+          const tabFilms = films.filter(f => f.week_number === week)
+          const hasFilms = tabFilms.length > 0
+          const theme = tabFilms[0]?.week_theme
           return (
-            <div key={week} style={{ marginBottom: '1.5rem' }}>
+            <button
+              key={week}
+              onClick={() => { setActiveWeek(week); setFilter('all') }}
+              className={`disc-tab ${isActive ? (isCurrent ? 'now' : 'active') : ''}`}
+              style={{ opacity: hasFilms ? 1 : 0.4 }}
+            >
+              <span className="disc-tab-top">
+                <span className="disc-tab-label">Week {week}</span>
+                {isCurrent && <span className="disc-tab-now">NOW WATCHING</span>}
+              </span>
+              {theme && <span className="disc-tab-theme">{theme}</span>}
+              {hasFilms && (
+                <span className="disc-tab-posters">
+                  {tabFilms.map(f => f.poster_url ? (
+                    <img key={f.id} src={f.poster_url} alt={f.title} className="disc-tab-poster" />
+                  ) : (
+                    <span key={f.id} className="disc-tab-poster-placeholder">🎬</span>
+                  ))}
+                </span>
+              )}
+              <span className="disc-tab-dates">{getWeekDates(week, selectedDate)}</span>
+            </button>
+          )
+        })}
+      </div>
 
-              {/* Week Header - clickable to expand */}
-              <div
-                onClick={() => toggleWeek(week)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: isCurrentWeek ? 'linear-gradient(90deg, #1a1a2e, #16213e)' : '#1a1a2e',
-                  border: isCurrentWeek ? '2px solid #ff6b6b' : '1px solid #333',
-                  borderRadius: isExpanded ? '12px 12px 0 0' : '12px',
-                  padding: '1rem 1.5rem',
-                  cursor: 'pointer',
-                  boxShadow: isCurrentWeek ? '0 0 15px rgba(255,107,107,0.2)' : 'none'
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span style={{
-                      background: isCurrentWeek ? '#ff6b6b' : '#333',
-                      color: 'white',
-                      padding: '0.2rem 0.75rem',
-                      borderRadius: '20px',
-                      fontSize: '0.8rem',
-                      fontWeight: 'bold'
-                    }}>
-                      WEEK {week} · {getWeekDates(week, selectedDate)} {isCurrentWeek ? '— NOW WATCHING' : ''}
-                    </span>
+      {/* Tab Content */}
+      <div className="disc-content">
+
+        {weekFilms.length === 0 ? (
+          <div className="empty-state">
+            <p>No films scheduled for Week {activeWeek} yet.</p>
+          </div>
+        ) : (
+          <>
+            {/* Week Theme */}
+            {weekTheme && <div className="disc-theme">{weekTheme}</div>}
+
+            {/* Film Showcase */}
+            <div className={`disc-showcase ${weekFilms.length === 1 ? 'single' : ''}`}>
+              {/* Film A */}
+              <FilmCard film={weekFilms[0]} rating={ratings[weekFilms[0]?.id]} />
+
+              {/* VS Divider */}
+              {weekFilms.length >= 2 && (
+                <>
+                  <div className="disc-vs">
+                    <div className="disc-vs-line" />
+                    <div className="disc-vs-badge">VS</div>
+                    <div className="disc-vs-line" />
                   </div>
-                  {weekFilms[0]?.week_theme && (
-                    <p style={{ color: '#ffd93d', fontStyle: 'italic', margin: '0.3rem 0 0', fontSize: '0.95rem' }}>
-                      {weekFilms[0].week_theme}
-                    </p>
-                  )}
-                  <p style={{ color: '#888', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>
-                    {weekFilms.map(f => f.title).join(' & ')}
-                  </p>
-                </div>
-                <span style={{ color: '#ff6b6b', fontSize: '1.2rem' }}>{isExpanded ? '▲' : '▼'}</span>
-              </div>
+                  {/* Film B */}
+                  <FilmCard film={weekFilms[1]} rating={ratings[weekFilms[1]?.id]} />
+                </>
+              )}
+            </div>
 
-              {/* Expanded Content */}
-              {isExpanded && (
-                <div style={{
-                  background: '#141414',
-                  border: isCurrentWeek ? '2px solid #ff6b6b' : '1px solid #333',
-                  borderTop: 'none',
-                  borderRadius: '0 0 12px 12px',
-                  padding: '1.5rem'
-                }}>
-
-                  {/* Discussion Points */}
-                  <h3 style={{ marginBottom: '0.75rem', color: '#ff6b6b' }}>🗣 Discussion Points</h3>
-                  <ul style={{ paddingLeft: '1.25rem', marginBottom: '1.5rem' }}>
-                    {discussionPoints.map((point, i) => (
-                      <li key={i} style={{ color: '#ccc', marginBottom: '0.4rem', fontSize: '0.95rem' }}>
-                        {point}
-                      </li>
-                    ))}
+            {/* Discussion Prompts */}
+            <div className="disc-prompts">
+              {weekFilms.length >= 2 ? (
+                <>
+                  <div className="disc-prompts-grid">
+                    <div className="disc-prompts-col">
+                      <h4>Discuss: {weekFilms[0].title}</h4>
+                      <ul>
+                        {getFilmPrompts(weekFilms[0]).map((p, i) => <li key={i}>{p}</li>)}
+                      </ul>
+                    </div>
+                    <div className="disc-prompts-col">
+                      <h4>Discuss: {weekFilms[1].title}</h4>
+                      <ul>
+                        {getFilmPrompts(weekFilms[1]).map((p, i) => <li key={i}>{p}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="disc-compare-section">
+                    <h4>Compare Them</h4>
+                    <ul>
+                      {getComparePrompts().map((p, i) => <li key={i}>{p}</li>)}
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <div className="disc-prompts-col">
+                  <h4>Discuss: {weekFilms[0].title}</h4>
+                  <ul>
+                    {getFilmPrompts(weekFilms[0]).map((p, i) => <li key={i}>{p}</li>)}
                   </ul>
-
-                  <hr style={{ borderColor: '#2a2a2a', marginBottom: '1.5rem' }} />
-
-                  {/* Post Form */}
-                  {user ? (
-                    <form onSubmit={e => handlePost(e, week)} style={{ marginBottom: '1.5rem' }}>
-                      <input
-                        type="text"
-                        placeholder="Post title"
-                        value={postInputs[week]?.title || ''}
-                        onChange={e => setPostInputs(prev => ({ ...prev, [week]: { ...prev[week], title: e.target.value } }))}
-                        required
-                        style={{ marginBottom: '0.5rem' }}
-                      />
-                      <textarea
-                        placeholder="Share your thoughts..."
-                        value={postInputs[week]?.body || ''}
-                        onChange={e => setPostInputs(prev => ({ ...prev, [week]: { ...prev[week], body: e.target.value } }))}
-                        required
-                        rows={3}
-                        style={{ marginBottom: '0.5rem' }}
-                      />
-                      <button type="submit" style={{ padding: '0.5rem 1.25rem' }}>Post</button>
-                    </form>
-                  ) : (
-                    <p style={{ marginBottom: '1rem', color: '#888' }}>
-                      <Link to="/login">Log in</Link> to join the discussion.
-                    </p>
-                  )}
-
-                  {/* Posts */}
-                  {(posts[week] || []).length === 0 ? (
-                    <p style={{ color: '#666' }}>No posts yet — be the first!</p>
-                  ) : (
-                    (posts[week] || []).map(post => (
-                      <div key={post.id} style={{ borderBottom: '1px solid #2a2a2a', padding: '0.75rem 0' }}>
-                        <Link to={`/discussion/${post.id}`} style={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                          {post.title}
-                        </Link>
-                        <p style={{ color: '#ccc', fontSize: '0.9rem', margin: '0.25rem 0' }}>{post.body}</p>
-                        <small>by {post.profiles?.username} · {new Date(post.created_at).toLocaleDateString()}</small>
-                      </div>
-                    ))
-                  )}
                 </div>
               )}
             </div>
-          )
-        })
+
+            {/* Start Discussion CTA / Form */}
+            <div className="disc-form-section">
+              {user ? (
+                <>
+                  {!showForm ? (
+                    <button
+                      className="disc-start-btn"
+                      onClick={() => setShowForm(true)}
+                    >
+                      + Start a New Discussion
+                    </button>
+                  ) : (
+                    <>
+                      <div className="disc-form-header">
+                        <h3>Start a Discussion</h3>
+                        <button
+                          type="button"
+                          className="disc-form-close"
+                          onClick={() => setShowForm(false)}
+                        >×</button>
+                      </div>
+
+                      <p className="disc-form-hint">What are you discussing?</p>
+                      {weekFilms.length >= 2 && (
+                        <div className="disc-tag-selector">
+                          <button
+                            type="button"
+                            className={`disc-tag-btn ${postTag === 'film0' ? 'active' : ''}`}
+                            onClick={() => setPostTag('film0')}
+                          >
+                            {weekFilms[0].title}
+                          </button>
+                          <button
+                            type="button"
+                            className={`disc-tag-btn ${postTag === 'film1' ? 'active' : ''}`}
+                            onClick={() => setPostTag('film1')}
+                          >
+                            {weekFilms[1].title}
+                          </button>
+                          <button
+                            type="button"
+                            className={`disc-tag-btn ${postTag === 'vs' ? 'active-vs' : ''}`}
+                            onClick={() => setPostTag('vs')}
+                          >
+                            Comparing Both
+                          </button>
+                          <button
+                            type="button"
+                            className={`disc-tag-btn ${postTag === 'general' ? 'active' : ''}`}
+                            onClick={() => setPostTag('general')}
+                          >
+                            General
+                          </button>
+                        </div>
+                      )}
+                      <form onSubmit={handlePost} className="disc-form">
+                        <input
+                          type="text"
+                          placeholder="Give your post a title..."
+                          value={postInputs[activeWeek]?.title || ''}
+                          onChange={e => setPostInputs(prev => ({ ...prev, [activeWeek]: { ...prev[activeWeek], title: e.target.value } }))}
+                          required
+                        />
+                        <textarea
+                          placeholder="Share your thoughts, reactions, hot takes..."
+                          value={postInputs[activeWeek]?.body || ''}
+                          onChange={e => setPostInputs(prev => ({ ...prev, [activeWeek]: { ...prev[activeWeek], body: e.target.value } }))}
+                          required
+                          rows={4}
+                        />
+                        <div className="disc-form-actions">
+                          <button type="submit">Post Discussion</button>
+                        </div>
+                      </form>
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className="disc-login-cta">
+                  <p>Want to share your thoughts?</p>
+                  <Link to="/login" className="disc-login-btn">Log in to Discuss</Link>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Posts List */}
+        <div className="disc-posts-section">
+          <h3>💬 Discussions ({weekPosts.length})</h3>
+
+          {/* Filters */}
+          {weekFilms.length >= 2 && weekPosts.length > 0 && (
+            <div className="disc-filters">
+              <button
+                className={`disc-filter-btn ${filter === 'all' ? 'active' : ''}`}
+                onClick={() => setFilter('all')}
+              >All</button>
+              <button
+                className={`disc-filter-btn ${filter === 'film0' ? 'active' : ''}`}
+                onClick={() => setFilter('film0')}
+              >{weekFilms[0].title}</button>
+              <button
+                className={`disc-filter-btn ${filter === 'film1' ? 'active' : ''}`}
+                onClick={() => setFilter('film1')}
+              >{weekFilms[1].title}</button>
+              <button
+                className={`disc-filter-btn ${filter === 'vs' ? 'active' : ''}`}
+                onClick={() => setFilter('vs')}
+              >Comparisons</button>
+              <button
+                className={`disc-filter-btn ${filter === 'general' ? 'active' : ''}`}
+                onClick={() => setFilter('general')}
+              >General</button>
+            </div>
+          )}
+
+          {filteredPosts.length === 0 ? (
+            <div className="disc-no-posts">
+              {weekPosts.length === 0 ? (
+                <>
+                  <p>No one has started a discussion yet for this week.</p>
+                  {user && (
+                    <button className="disc-be-first-btn" onClick={() => setShowForm(true)}>
+                      Be the first to post
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p>No posts match this filter.</p>
+              )}
+            </div>
+          ) : (
+            filteredPosts.map(post => {
+              const { tag, cleanTitle } = parsePostTag(post.title)
+              return (
+                <div key={post.id} className="disc-post">
+                  <div className="disc-post-title">
+                    {tag && (
+                      <span className={`disc-post-tag ${tag === 'VS' ? 'vs' : 'film'}`}>
+                        {tag === 'VS' ? 'VS' : tag}
+                      </span>
+                    )}
+                    <Link to={`/discussion/${post.id}`}>{cleanTitle}</Link>
+                  </div>
+                  <p className="disc-post-body">{post.body}</p>
+                  <small className="meta">
+                    by {post.profiles?.username} · {new Date(post.created_at).toLocaleDateString()}
+                  </small>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Film card component for the VS showcase
+function FilmCard({ film, rating }) {
+  if (!film) return null
+  const ratingOut5 = rating ? (rating / 2).toFixed(1) : null
+
+  return (
+    <div className="disc-film-card">
+      {film.poster_url ? (
+        <img src={film.poster_url} alt={film.title} className="disc-film-poster" />
+      ) : (
+        <div className="disc-film-no-poster">🎬</div>
+      )}
+      <h3 className="disc-film-title">{film.title}</h3>
+      {film.director && (
+        <div className="disc-film-crew">
+          <p className="disc-film-crew-label">Director</p>
+          <p className="disc-film-crew-name">{film.director}</p>
+        </div>
+      )}
+      {film.writer && (
+        <div className="disc-film-crew">
+          <p className="disc-film-crew-label">Writer</p>
+          <p className="disc-film-crew-name">{film.writer}</p>
+        </div>
+      )}
+      {film.cinematographer && (
+        <div className="disc-film-crew">
+          <p className="disc-film-crew-label">Cinematographer</p>
+          <p className="disc-film-crew-name">{film.cinematographer}</p>
+        </div>
+      )}
+      {ratingOut5 && (
+        <p className="disc-film-rating">⭐ {ratingOut5} / 5</p>
+      )}
+      <div className="disc-film-links">
+        {film.trailer_url && (
+          <a href={film.trailer_url} target="_blank" rel="noreferrer">▶ Trailer</a>
+        )}
+      </div>
+      {film.description && (
+        <p className="disc-film-desc">{film.description}</p>
       )}
     </div>
   )

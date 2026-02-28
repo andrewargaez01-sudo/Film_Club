@@ -1,0 +1,152 @@
+.post-detail {
+  max-width: 750px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.post-detail-card {
+  background: rgba(21, 21, 32, 0.5);
+  border-radius: 14px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.post-detail-card h2 {
+  margin-bottom: 0.75rem;
+}
+
+.post-detail-card > p {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.post-detail-meta {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.82rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Film Context Banner ── */
+.post-context-banner {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.post-context-film {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.post-context-poster {
+  width: 48px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  box-shadow: 0 0 12px rgba(255, 107, 107, 0.15);
+  flex-shrink: 0;
+}
+
+.post-context-title {
+  color: #ffd93d;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.post-context-director {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.78rem;
+  margin: 0.15rem 0 0;
+}
+
+/* VS context layout */
+.post-context-vs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  position: relative;
+}
+
+.post-context-vs-badge {
+  color: #ffd93d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: rgba(21, 21, 32, 0.9);
+  border: 1px solid rgba(255, 215, 61, 0.2);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Post Tag ── */
+.post-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.6rem;
+}
+
+.post-tag.film {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+}
+
+.post-tag.vs {
+  background: rgba(255, 215, 61, 0.12);
+  color: #ffd93d;
+}
+
+/* ── Comments ── */
+.post-comments h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.post-comment {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.post-comment:last-child {
+  border-bottom: none;
+}
+
+.post-comment p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.post-comment small {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.78rem;
+}
+
+/* ── Comment Form ── */
+.post-comment-form {
+  margin-top: 2rem;
+}
+
+.post-comment-form textarea {
+  margin-bottom: 0.5rem;
+}
+
+.post-comment-form button {
+  padding: 0.5rem 1.25rem;
+}

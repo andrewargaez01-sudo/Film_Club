@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { Link } from 'react-router-dom'
-
-function getMonthYear(date) {
-  const fmt = d => d.toLocaleDateString('default', { month: 'numeric', day: 'numeric' })
-}
+import './Home.css'
 
 function StarRating({ score }) {
-  // score is out of 10; convert to out of 5
   const outOf5 = score / 2
   return (
     <span style={{ fontSize: '1.1rem', letterSpacing: '0.05em' }}>
@@ -99,175 +95,98 @@ export default function Home() {
   }
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '2rem auto', padding: '1rem' }}>
+    <div className="home">
 
       {/* Welcome */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>Welcome to the Film Club</h1>
+      <div className="home-welcome">
+        <h1>Welcome to the Film Club</h1>
         {user
-          ? <p style={{ color: '#ccc', fontSize: '1.1rem' }}>Good to see you, <strong style={{ color: '#6bcb77' }}>{username}</strong>! Check out this week's films.</p>
-          : <p style={{ color: '#ccc', fontSize: '1.1rem' }}>A place to watch, discuss, and rate films together. <Link to="/register">Join us</Link> or <Link to="/login">log in</Link>.</p>
+          ? <p>Good to see you, <strong>{username}</strong>! Check out this week's films.</p>
+          : <p>A place to watch, discuss, and rate films together. <Link to="/register">Join us</Link> or <Link to="/login">log in</Link>.</p>
         }
       </div>
 
       {/* Current Week Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '1rem'
-      }}>
+      <div className="home-week-header">
         <div>
-          <span style={{
-            background: '#ff6b6b',
-            color: 'white',
-            padding: '0.3rem 1rem',
-            borderRadius: '20px',
-            fontSize: '0.85rem',
-            fontWeight: 'bold'
-          }}>
+          <span className="home-week-badge">
             WEEK {currentWeek} — NOW WATCHING
           </span>
           {weekTheme && (
-            <p style={{ color: '#ffd93d', fontStyle: 'italic', margin: '0.4rem 0 0', fontSize: '1rem' }}>
-             {weekTheme}
-            </p>
+            <p className="home-week-theme">{weekTheme}</p>
           )}
         </div>
-        <Link to="/film-of-the-month" style={{ fontSize: '0.9rem' }}>View all months →</Link>
+        <Link to="/film-of-the-month" className="home-view-all">View all months →</Link>
       </div>
 
-      {/* Big Film Cards */}
+      {/* Film Cards */}
       {loading ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          background: '#1a1a2e',
-          borderRadius: '12px',
-          border: '1px solid #333',
-          color: '#888',
-          marginBottom: '2rem'
-        }}>
+        <div className="home-empty-state loading">
           <p>Loading films...</p>
         </div>
       ) : currentWeekFilms.length === 0 ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          background: '#1a1a2e',
-          borderRadius: '12px',
-          border: '1px solid #333',
-          color: '#888',
-          marginBottom: '2rem'
-        }}>
+        <div className="home-empty-state">
           <p>No films scheduled for this week yet.</p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '1.5rem',
-          marginBottom: '2.5rem'
-        }}>
+        <div className="home-film-grid">
           {currentWeekFilms.map((film, index) => {
             const infoLeft = index % 2 === 0
             return (
-              <div key={film.id} style={{
-                background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
-                border: '2px solid #ff6b6b',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 0 25px rgba(255,107,107,0.2)',
-                display: 'flex',
-                flexDirection: 'column'
-              }}>
+              <div key={film.id} className="home-film-card">
 
-                {/* Top: crew + poster */}
-                <div style={{
-                  display: 'flex',
-                  flexDirection: infoLeft ? 'row' : 'row-reverse',
-                  alignItems: 'stretch'
-                }}>
+                <div className={`home-film-card-top ${!infoLeft ? 'reverse' : ''}`}>
 
                   {/* Crew Info */}
-                  <div style={{
-                    flex: 1,
-                    padding: '1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-start',
-                    gap: '0.6rem',
-                    textAlign: infoLeft ? 'left' : 'right'
-                  }}>
-                    <h2 style={{ fontSize: '1.2rem', color: '#ffd93d', margin: 0 }}>
-                      {film.title}
-                    </h2>
+                  <div className={`home-film-info ${!infoLeft ? 'text-right' : ''}`}>
+                    <h2 className="home-film-title">{film.title}</h2>
                     {film.director && (
                       <div>
-                        <p style={{ color: '#888', fontSize: '0.7rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Director</p>
-                        <p style={{ color: '#fff', fontSize: '0.95rem', margin: 0 }}>{film.director}</p>
+                        <p className="home-film-crew-label">Director</p>
+                        <p className="home-film-crew-name">{film.director}</p>
                       </div>
                     )}
                     {film.writer && (
                       <div>
-                        <p style={{ color: '#888', fontSize: '0.7rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Writer</p>
-                        <p style={{ color: '#fff', fontSize: '0.95rem', margin: 0 }}>{film.writer}</p>
+                        <p className="home-film-crew-label">Writer</p>
+                        <p className="home-film-crew-name">{film.writer}</p>
                       </div>
                     )}
                     {film.cinematographer && (
                       <div>
-                        <p style={{ color: '#888', fontSize: '0.7rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cinematographer</p>
-                        <p style={{ color: '#fff', fontSize: '0.95rem', margin: 0 }}>{film.cinematographer}</p>
+                        <p className="home-film-crew-label">Cinematographer</p>
+                        <p className="home-film-crew-name">{film.cinematographer}</p>
                       </div>
                     )}
                     {ratings[film.id] && (
-                      <div style={{ margin: 0 }}>
+                      <div>
                         <StarRating score={ratings[film.id]} />
                       </div>
                     )}
-                    <div style={{
-                      display: 'flex',
-                      gap: '0.75rem',
-                      flexWrap: 'wrap',
-                      justifyContent: infoLeft ? 'flex-start' : 'flex-end',
-                      marginTop: '0.25rem'
-                    }}>
+                    <div className={`home-film-links ${!infoLeft ? 'right' : ''}`}>
                       {film.trailer_url && (
-                        <a href={film.trailer_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem' }}>▶ Trailer</a>
+                        <a href={film.trailer_url} target="_blank" rel="noreferrer">▶ Trailer</a>
                       )}
-                      <Link to="/discussion" style={{ fontSize: '0.85rem' }}>💬 Discuss</Link>
+                      <Link to="/discussion">💬 Discuss</Link>
                     </div>
                   </div>
 
                   {/* Poster */}
                   {film.poster_url && (
-                    <div style={{
-                      flexShrink: 0,
-                      padding: '0.75rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
+                    <div className="home-film-poster-wrap">
                       <img
                         src={film.poster_url}
                         alt={film.title}
-                        style={{
-                          width: '200px',
-                          height: '300px',
-                          objectFit: 'cover',
-                          borderRadius: '8px',
-                          border: '2px solid #ffd93d',
-                          boxShadow: '0 0 18px rgba(255,217,61,0.45), 0 0 6px rgba(255,217,61,0.25)'
-                        }}
+                        className="home-film-poster"
                       />
                     </div>
                   )}
                 </div>
 
-                {/* Description below */}
+                {/* Description */}
                 {film.description && (
-                  <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid #2a2a2a' }}>
-                    <p style={{ color: '#ccc', fontSize: '0.85rem', margin: 0 }}>{film.description}</p>
+                  <div className="home-film-desc">
+                    <p>{film.description}</p>
                   </div>
                 )}
               </div>
@@ -277,24 +196,19 @@ export default function Home() {
       )}
 
       {/* Recent Discussions */}
-      <div style={{
-        background: '#1a1a2e',
-        borderRadius: '12px',
-        padding: '1.5rem',
-        border: '1px solid #333'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0 }}>💬 Recent Discussions</h3>
-          <Link to="/discussion" style={{ fontSize: '0.9rem' }}>View all →</Link>
+      <div className="home-discussions">
+        <div className="home-discussions-header">
+          <h3>💬 Recent Discussions</h3>
+          <Link to="/discussion" className="home-view-all">View all →</Link>
         </div>
 
         {recentPosts.length === 0 ? (
-          <p style={{ color: '#666' }}>No discussions yet — <Link to="/discussion">start one!</Link></p>
+          <p style={{ color: 'rgba(255,255,255,0.3)' }}>No discussions yet — <Link to="/discussion">start one!</Link></p>
         ) : (
           recentPosts.map(post => (
-            <div key={post.id} style={{ borderBottom: '1px solid #2a2a2a', padding: '0.75rem 0' }}>
-              <Link to={`/discussion/${post.id}`} style={{ fontWeight: 'bold' }}>{post.title}</Link>
-              <p style={{ color: '#888', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>
+            <div key={post.id} className="home-discussion-item">
+              <Link to={`/discussion/${post.id}`}>{post.title}</Link>
+              <p className="home-discussion-meta">
                 by {post.profiles?.username} · Week {post.week_number} · {new Date(post.created_at).toLocaleDateString()}
               </p>
             </div>

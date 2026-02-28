@@ -1,6 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import './Register.css'
+
+const QUOTES = [
+  { text: "Every great film begins with a single frame.", film: "Anonymous" },
+  { text: "In a world full of trends, I want to remain a classic.", film: "Iman" },
+  { text: "Cinema is a mirror that can change the world.", film: "Robert Bresson" },
+  { text: "A film is a petrified fountain of thought.", film: "Jean Cocteau" },
+  { text: "Movies touch our hearts and awaken our vision.", film: "Martin Scorsese" },
+  { text: "All you need for a movie is a gun and a girl.", film: "Jean-Luc Godard" },
+  { text: "Film is one of the three universal languages.", film: "Frank Capra" },
+  { text: "The cinema is truth twenty-four frames a second.", film: "Jean-Luc Godard" },
+]
 
 export default function Register() {
   const [email, setEmail] = useState('')
@@ -8,7 +20,13 @@ export default function Register() {
   const [username, setUsername] = useState('')
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
+  const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)])
+  const [mounted, setMounted] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true))
+  }, [])
 
   async function handleRegister(e) {
     e.preventDefault()
@@ -25,53 +43,68 @@ export default function Register() {
     if (profileError) {
       setError(profileError.message)
     } else {
-      setMessage('Account created! You can now log in.')
+      setMessage('Account created! Setting up your profile...')
+      setTimeout(() => navigate('/profile'), 1500)
     }
   }
 
   return (
-    <div style={{
-      maxWidth: '420px',
-      margin: '4rem auto',
-      padding: '2rem',
-      background: '#1a1a2e',
-      borderRadius: '12px',
-      border: '1px solid #333',
-      boxShadow: '0 0 30px rgba(255,107,107,0.15)'
-    }}>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister}>
-        <div style={{ marginBottom: '1rem' }}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
+    <div className={`auth-page ${mounted ? 'mounted' : ''}`}>
+      <div className="auth-film-strip left" />
+      <div className="auth-film-strip right" />
+
+      <div className="auth-container">
+        <div className="auth-quote">
+          <p className="auth-quote-text">"{quote.text}"</p>
+          <p className="auth-quote-film">— {quote.film}</p>
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
+
+        <div className="auth-card register-card">
+          <div className="auth-card-glow" />
+          <h2>Join the Film Club</h2>
+          <p className="auth-subtitle">Create your account and start discussing</p>
+
+          <form onSubmit={handleRegister}>
+            <div className="form-group">
+              <label className="auth-label">Username</label>
+              <input
+                type="text"
+                placeholder="Pick a username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="auth-label">Email</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="auth-label">Password</label>
+              <input
+                type="password"
+                placeholder="Create a password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="error-msg">{error}</p>}
+            {message && <p className="success-msg">{message}</p>}
+            <button type="submit" className="submit-btn">Create Account</button>
+          </form>
+
+          <p className="auth-switch">
+            Already have an account? <Link to="/login">Log in</Link>
+          </p>
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {message && <p style={{ color: 'green' }}>{message}</p>}
-        <button type="submit" style={{ width: '100%', padding: '0.75rem', marginTop: '0.5rem', fontSize: '1rem' }}>Register</button>
-      </form>
+      </div>
     </div>
   )
 }

@@ -1,0 +1,349 @@
+/* ══════════════════════════════════════
+   Suggestions & Requests Page
+   ══════════════════════════════════════ */
+
+/* ── Header ── */
+.sug-header h2 {
+  margin-bottom: 0.25rem;
+}
+
+.sug-header p {
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 2rem;
+}
+
+/* ── Tabs ── */
+.sug-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0;
+}
+
+.sug-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.3rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.sug-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sug-tab.active {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+  font-weight: 700;
+  border-color: rgba(255, 107, 107, 0.15);
+}
+
+.sug-tab-icon {
+  font-size: 1rem;
+}
+
+/* ── Tab Content ── */
+.sug-content {
+  background: rgba(21, 21, 32, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0 14px 14px 14px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Success Toast ── */
+.sug-toast {
+  background: rgba(107, 203, 119, 0.1);
+  border: 1px solid rgba(107, 203, 119, 0.2);
+  color: #6bcb77;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  animation: sug-toast-in 0.3s ease;
+}
+
+@keyframes sug-toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Form Section ── */
+.sug-form-section {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 0;
+}
+
+.sug-start-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.12), rgba(238, 90, 36, 0.08));
+  border: 1px dashed rgba(255, 107, 107, 0.3);
+  border-radius: 10px;
+  color: #ff6b6b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sug-start-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.18), rgba(238, 90, 36, 0.12));
+  border-style: solid;
+  color: #ff6b6b;
+}
+
+.sug-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.sug-form-header h3 {
+  font-size: 0.95rem;
+  color: #ff6b6b;
+  margin: 0;
+  font-weight: 600;
+}
+
+.sug-form-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.sug-form-close:hover {
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+}
+
+/* ── Submit Form ── */
+.sug-form input,
+.sug-form textarea {
+  margin-bottom: 0.5rem;
+}
+
+.sug-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sug-form-actions button {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* ── Login CTA ── */
+.sug-login-cta {
+  text-align: center;
+  padding: 1rem 0;
+  margin-bottom: 0;
+}
+
+.sug-login-cta p {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+}
+
+.sug-login-btn {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white !important;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: opacity 0.2s;
+  text-decoration: none !important;
+}
+
+.sug-login-btn:hover {
+  opacity: 0.9;
+  color: white !important;
+  text-decoration: none !important;
+}
+
+/* ── List Header ── */
+.sug-list-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+.sug-list-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.15rem 0.55rem;
+  border-radius: 10px;
+}
+
+/* ── Empty State ── */
+.sug-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.sug-empty p {
+  margin: 0 0 0.75rem;
+}
+
+.sug-be-first-btn {
+  padding: 0.55rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sug-be-first-btn:hover {
+  background: #ff6b6b;
+  color: white;
+  border-color: #ff6b6b;
+}
+
+/* ── Suggestion Items ── */
+.sug-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.sug-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+  transform: translateX(3px);
+}
+
+/* ── Vote Button ── */
+.sug-vote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  cursor: pointer;
+  min-width: 50px;
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sug-vote:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.sug-vote:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.sug-vote:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.sug-vote.voted {
+  background: rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+}
+
+.sug-vote.voted .sug-vote-arrow {
+  animation: vote-bounce 0.3s ease;
+}
+
+@keyframes vote-bounce {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+.sug-vote-arrow {
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.sug-vote-count {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* ── Suggestion Content ── */
+.sug-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sug-item-content h4 {
+  margin: 0 0 0.25rem;
+  color: #ffd93d;
+  font-size: 0.95rem;
+}
+
+.sug-item-content p {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.88rem;
+  margin: 0 0 0.4rem;
+  line-height: 1.45;
+}
+
+/* ── Item Meta with Avatar ── */
+.sug-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.sug-item-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  flex-shrink: 0;
+}
