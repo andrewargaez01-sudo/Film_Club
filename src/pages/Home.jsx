@@ -163,12 +163,7 @@ export default function Home() {
           <p>No films scheduled for this week yet.</p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '1.5rem',
-          marginBottom: '2.5rem'
-        }}>
+        <div className="film-grid">
           {currentWeekFilms.map((film, index) => {
             const infoLeft = index % 2 === 0
             return (
@@ -183,7 +178,7 @@ export default function Home() {
               }}>
 
                 {/* Top: crew + poster */}
-                <div style={{
+                <div className="film-card-inner" style={{
                   display: 'flex',
                   flexDirection: infoLeft ? 'row' : 'row-reverse',
                   alignItems: 'stretch'
@@ -241,7 +236,7 @@ export default function Home() {
 
                   {/* Poster */}
                   {film.poster_url && (
-                    <div style={{
+                    <div className="film-card-poster" style={{
                       flexShrink: 0,
                       padding: '0.75rem',
                       display: 'flex',

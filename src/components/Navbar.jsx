@@ -39,50 +39,32 @@ export default function Navbar() {
 
   const links = [
     { to: '/', label: 'Home', icon: '🏠' },
-    { to: '/film-of-the-month', label: 'Films of the Month', icon: '🎬' },
+    { to: '/film-of-the-month', label: 'Films', icon: '🎬' },
     { to: '/discussion', label: 'Discussion', icon: '💬' },
     { to: '/suggestions', label: 'Suggestions', icon: '💡' },
   ]
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      height: '100vh',
-      width: '260px',
-      background: 'linear-gradient(180deg, #1a1a2e, #16213e)',
-      borderRight: '2px solid #ff6b6b',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '1.5rem 0',
-      zIndex: 1000
-    }}>
+    <div className="sidebar">
 
-      {/* Logo */}
-      <div style={{ padding: '0 1.5rem 2rem', borderBottom: '1px solid #333' }}>
+      {/* Logo - desktop only */}
+      <div className="sidebar-logo">
         <h2 style={{ color: '#ffd93d', margin: 0, fontSize: '1.2rem' }}>Double Feature<br /> Film Club</h2>
       </div>
 
       {/* Nav Links */}
-      <nav style={{ flex: 1, padding: '1.5rem 0' }}>
+      <nav className="sidebar-nav">
         {links.map(link => {
           const isActive = location.pathname === link.to
           return (
             <Link
               key={link.to}
               to={link.to}
+              className={`sidebar-nav-link${isActive ? ' active-link' : ''}`}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.75rem 1.5rem',
                 color: isActive ? '#ffd93d' : '#ccc',
                 background: isActive ? 'rgba(255,107,107,0.15)' : 'transparent',
                 borderLeft: isActive ? '3px solid #ff6b6b' : '3px solid transparent',
-                textDecoration: 'none',
-                fontSize: '0.95rem',
-                transition: 'all 0.2s'
               }}
             >
               <span>{link.icon}</span>
@@ -90,10 +72,23 @@ export default function Navbar() {
             </Link>
           )
         })}
+
+        {/* Mobile-only auth link */}
+        {user ? (
+          <button onClick={handleLogout} className="mobile-only">
+            <span>👤</span>
+            <span>Logout</span>
+          </button>
+        ) : (
+          <Link to="/login" className="mobile-only">
+            <span>🔑</span>
+            <span>Login</span>
+          </Link>
+        )}
       </nav>
 
-      {/* User Section */}
-      <div style={{ padding: '1.5rem', borderTop: '1px solid #333' }}>
+      {/* User Section - desktop only */}
+      <div className="sidebar-user">
         {user ? (
           <>
             <p style={{ color: '#6bcb77', fontWeight: 'bold', margin: '0 0 0.75rem', fontSize: '0.9rem' }}>
