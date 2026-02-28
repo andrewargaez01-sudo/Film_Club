@@ -31,7 +31,8 @@ export async function searchMovies(query) {
   if (!query || query.length < 2) return []
 
   const res = await fetch(
-    `${TMDB_BASE}/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`
+    `${TMDB_BASE}/search/movie?query=${encodeURIComponent(query)}`,
+    { headers: { Authorization: `Bearer ${TMDB_KEY}` } }
   )
   if (!res.ok) return []
 
@@ -52,7 +53,8 @@ export async function getMovieDetails(id) {
   if (!TMDB_KEY) return null
 
   const res = await fetch(
-    `${TMDB_BASE}/movie/${id}?api_key=${TMDB_KEY}&append_to_response=credits,videos`
+    `${TMDB_BASE}/movie/${id}?append_to_response=credits,videos`,
+    { headers: { Authorization: `Bearer ${TMDB_KEY}` } }
   )
   if (!res.ok) return null
 
