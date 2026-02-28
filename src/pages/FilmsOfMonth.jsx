@@ -147,7 +147,7 @@ export default function FilmsOfMonth() {
             <div key={week} style={{ marginBottom: '2rem' }}>
 
               {/* Week Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="week-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                   <span style={{
                     background: isCurrentWeek ? '#ff6b6b' : '#333',
@@ -162,12 +162,12 @@ export default function FilmsOfMonth() {
                     WEEK {week} · {getWeekDates(week, selectedDate)} {isCurrentWeek ? '— NOW WATCHING' : ''}
                   </span>
                   {weekFilms[0]?.week_theme && (
-                    <span style={{ color: '#ffd93d', fontSize: '0.9rem', fontStyle: 'italic', paddingLeft: '0.5rem' }}>
+                    <span className="week-theme" style={{ color: '#ffd93d', fontSize: '0.9rem', fontStyle: 'italic', paddingLeft: '0.5rem' }}>
                       {weekFilms[0].week_theme}
                     </span>
                   )}
                 </div>
-                <div style={{ flex: 1, height: '1px', background: isCurrentWeek ? '#ff6b6b' : 'linear-gradient(90deg, #4a4a6a, transparent)' }} />
+                <div className="week-header-divider" style={{ flex: 1, height: '1px', background: isCurrentWeek ? '#ff6b6b' : 'linear-gradient(90deg, #4a4a6a, transparent)' }} />
               </div>
 
               {/* Discussion Link */}

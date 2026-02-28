@@ -111,7 +111,7 @@ export default function Home() {
       </div>
 
       {/* Current Week Header */}
-      <div style={{
+      <div className="home-week-header" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -129,12 +129,12 @@ export default function Home() {
             WEEK {currentWeek} — NOW WATCHING
           </span>
           {weekTheme && (
-            <p style={{ color: '#ffd93d', fontStyle: 'italic', margin: '0.4rem 0 0', fontSize: '1rem' }}>
+            <p className="week-theme" style={{ color: '#ffd93d', fontStyle: 'italic', margin: '0.4rem 0 0', fontSize: '1rem' }}>
              {weekTheme}
             </p>
           )}
         </div>
-        <Link to="/film-of-the-month" style={{ fontSize: '0.9rem' }}>View all months →</Link>
+        <Link to="/film-of-the-month" style={{ fontSize: '0.9rem', flexShrink: 0 }}>View all months →</Link>
       </div>
 
       {/* Big Film Cards */}

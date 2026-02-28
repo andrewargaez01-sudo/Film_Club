@@ -199,4 +199,26 @@ small {
   .film-card-poster {
     justify-content: center;
   }
+
+  .week-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .week-header-divider {
+    display: none;
+  }
+
+  .week-theme {
+    font-size: 0.82rem !important;
+    padding-left: 0 !important;
+    white-space: normal !important;
+  }
+
+  .home-week-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }
