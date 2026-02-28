@@ -232,6 +232,9 @@ export default function FilmsOfMonth() {
                             {film.trailer_url && (
                               <a href={film.trailer_url} target="_blank" rel="noreferrer">▶ Trailer</a>
                             )}
+                            {film.where_to_watch && (
+                              <a href={film.where_to_watch} target="_blank" rel="noreferrer" style={{ color: '#6bcb77' }}>🎬 Watch</a>
+                            )}
                           </div>
                           {user ? (
                             <form

@@ -230,6 +230,9 @@ export default function Home() {
                       {film.trailer_url && (
                         <a href={film.trailer_url} target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem' }}>▶ Trailer</a>
                       )}
+                      {film.where_to_watch && (
+                        <a href={film.where_to_watch} target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem', color: '#6bcb77' }}>🎬 Watch</a>
+                      )}
                       <Link to="/discussion" style={{ fontSize: '0.85rem' }}>💬 Discuss</Link>
                     </div>
                   </div>
