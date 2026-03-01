@@ -89,3 +89,16 @@ small {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* ── Layout ── */
+.main-content {
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding-bottom: 70px;
+  }
+}
