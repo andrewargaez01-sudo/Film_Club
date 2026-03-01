@@ -91,12 +91,11 @@ export default function Profile() {
       .update(updates)
       .eq('id', user.id)
       .select()
-      .single()
     if (error) {
       console.error('Profile save error:', error)
       setSaveError(error.message)
-    } else if (!saved) {
-      setSaveError('Save failed — your profile may not have permission to update. Check Supabase row-level security settings.')
+    } else if (!saved || saved.length === 0) {
+      setSaveError('Save failed — no rows were updated. Check Supabase row-level security settings.')
     } else {
       setProfile(prev => ({ ...prev, ...updates }))
       setEditing(false)
