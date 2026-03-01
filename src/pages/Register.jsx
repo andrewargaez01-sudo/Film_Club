@@ -24,6 +24,14 @@ export default function Register() {
       return
     }
 
+    // If email confirmation is required, data.session will be null.
+    // We can't insert the profile row yet — the user must confirm first.
+    if (!data.session) {
+      setMessage('Check your email and click the confirmation link, then log in.')
+      setLoading(false)
+      return
+    }
+
     const { error: profileError } = await supabase
       .from('profiles')
       .insert({ id: data.user.id, username })
