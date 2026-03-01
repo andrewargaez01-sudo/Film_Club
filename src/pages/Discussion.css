@@ -7,10 +7,13 @@
   display: flex;
   gap: 0.35rem;
   margin-bottom: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .disc-tab {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,6 +28,7 @@
   font-size: 0.82rem;
   font-weight: 600;
   transition: all 0.2s;
+  overflow: hidden;
 }
 
 .disc-tab:hover {
@@ -307,26 +311,35 @@
 .disc-prompts {
   background: rgba(21, 21, 32, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.04);
-  border-top: 2px solid rgba(255, 215, 61, 0.1);
   border-radius: 14px;
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
 .disc-prompts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.25rem;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.disc-prompts-col {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 1.25rem;
 }
 
 .disc-prompts-col h4 {
   color: #ff6b6b;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.85rem;
   font-weight: 700;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 107, 107, 0.1);
 }
 
 .disc-prompts-col ul {
@@ -338,31 +351,30 @@
 .disc-prompts-col li {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
-  line-height: 1.45;
-  margin-bottom: 0.4rem;
-  padding-left: 0.75rem;
-  position: relative;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.2s;
 }
 
-.disc-prompts-col li::before {
-  content: '·';
-  position: absolute;
-  left: 0;
-  color: rgba(255, 255, 255, 0.2);
-  font-weight: 700;
+.disc-prompts-col li:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .disc-compare-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 215, 61, 0.08);
+  padding-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .disc-compare-section h4 {
   color: #ffd93d;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 0 0 0.6rem;
+  letter-spacing: 1.5px;
+  margin: 0 0 1rem;
   font-weight: 700;
   text-align: center;
 }
@@ -371,14 +383,25 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .disc-compare-section li {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
-  line-height: 1.45;
-  margin-bottom: 0.4rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
   text-align: center;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.disc-compare-section li:hover {
+  background: rgba(255, 215, 61, 0.04);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ── Post Form ── */

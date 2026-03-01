@@ -33,6 +33,15 @@ export default function Navbar() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Re-fetch profile when it's updated from the Profile page
+  useEffect(() => {
+    function handleProfileUpdate() {
+      if (user) fetchProfile(user.id)
+    }
+    window.addEventListener('profile-updated', handleProfileUpdate)
+    return () => window.removeEventListener('profile-updated', handleProfileUpdate)
+  }, [user])
+
   async function handleLogout() {
     await supabase.auth.signOut()
     navigate('/login')

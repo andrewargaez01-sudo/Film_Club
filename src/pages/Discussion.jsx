@@ -225,7 +225,7 @@ export default function Discussion() {
                 <span className="disc-tab-label">Week {week}</span>
                 {isCurrent && <span className="disc-tab-now">NOW WATCHING</span>}
               </span>
-              {theme && <span className="disc-tab-theme">{theme}</span>}
+              {theme && <span className="disc-tab-theme">{theme.split(' - ')[0]}</span>}
               {hasFilms && (
                 <span className="disc-tab-posters">
                   {tabFilms.map(f => f.poster_url ? (

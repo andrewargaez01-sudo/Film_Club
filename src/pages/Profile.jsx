@@ -17,6 +17,7 @@ export default function Profile() {
   const [searching, setSearching] = useState(false)
   const [selectedMovie, setSelectedMovie] = useState(null)
   const [quote, setQuote] = useState('')
+  const [saveError, setSaveError] = useState(null)
 
   const navigate = useNavigate()
 
@@ -77,6 +78,7 @@ export default function Profile() {
   async function handleSave() {
     if (!user) return
     setSaving(true)
+    setSaveError(null)
     const updates = {
       favorite_quote: quote.trim() || null,
     }
@@ -88,9 +90,13 @@ export default function Profile() {
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
-    if (!error) {
+    if (error) {
+      console.error('Profile save error:', error)
+      setSaveError(error.message)
+    } else {
       setProfile(prev => ({ ...prev, ...updates }))
       setEditing(false)
+      window.dispatchEvent(new Event('profile-updated'))
     }
     setSaving(false)
   }
@@ -230,6 +236,8 @@ export default function Profile() {
               />
               <small className="prof-char-count">{quote.length}/200</small>
             </div>
+
+            {saveError && <p className="error-msg">{saveError}</p>}
 
             {/* Actions */}
             <div className="prof-actions">
