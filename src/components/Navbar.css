@@ -186,6 +186,11 @@
   border-color: #ff6b6b;
 }
 
+/* ── Mobile Only ── */
+.mobile-only {
+  display: none;
+}
+
 /* ── Auth Links ── */
 .sidebar-auth {
   display: flex;
