@@ -8,6 +8,7 @@ import Discussion from './pages/Discussion'
 import PostDetail from './pages/PostDetail'
 import Suggestions from './pages/Suggestions'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/discussion/:id" element={<PostDetail />} />
           <Route path="/suggestions" element={<Suggestions />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </div>
     </>

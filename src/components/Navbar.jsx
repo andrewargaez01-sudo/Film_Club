@@ -12,7 +12,7 @@ export default function Navbar() {
   async function fetchProfile(userId) {
     const { data } = await supabase
       .from('profiles')
-      .select('username, avatar_url, favorite_quote, favorite_movie')
+      .select('username, avatar_url, favorite_quote, favorite_movie, is_admin')
       .eq('id', userId)
       .single()
     if (data) setProfile(data)
@@ -58,6 +58,7 @@ export default function Navbar() {
     { to: '/discussion', label: 'Discussion', icon: '💬' },
     { to: '/suggestions', label: 'Suggestions', icon: '💡' },
     { to: user ? '/profile' : '/register', label: user ? 'My Profile' : 'Register', icon: '👤' },
+    ...(profile?.is_admin ? [{ to: '/admin', label: 'Admin', icon: '⚙️' }] : []),
   ]
 
   const getInitials = (name) => {
