@@ -49,7 +49,7 @@ export default function Navbar() {
 
   const links = [
     { to: '/', label: 'Home', icon: '🏠' },
-    { to: '/film-of-the-month', label: 'Films of the Month', icon: '🎬' },
+    { to: '/film-of-the-month', label: 'Films', icon: '🎬' },
     { to: '/discussion', label: 'Discussion', icon: '💬' },
     { to: '/suggestions', label: 'Suggestions', icon: '💡' },
     { to: '/profile', label: 'My Profile', icon: '👤' },
@@ -86,6 +86,19 @@ export default function Navbar() {
             </Link>
           )
         })}
+
+        {/* Mobile-only auth link */}
+        {user ? (
+          <button onClick={handleLogout} className="mobile-only">
+            <span>👤</span>
+            <span>Logout</span>
+          </button>
+        ) : (
+          <Link to="/login" className="mobile-only">
+            <span>🔑</span>
+            <span>Login</span>
+          </Link>
+        )}
       </nav>
 
       {/* User Section */}
