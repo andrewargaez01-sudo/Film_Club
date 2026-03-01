@@ -31,6 +31,62 @@
   color: #6bcb77;
 }
 
+/* ── About Section ── */
+.home-about {
+  background: rgba(21, 21, 32, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.home-about-title {
+  font-size: 1.4rem;
+  color: #ffd93d;
+  margin: 0 0 0.6rem;
+}
+
+.home-about-intro {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.home-about-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.home-about-list li {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.home-about-label {
+  color: #ff6b6b;
+  font-weight: 700;
+  margin-right: 0.35rem;
+  text-transform: lowercase;
+}
+
+.home-about-rule {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.88rem;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.home-about-rule strong {
+  color: #6bcb77;
+}
+
 /* ── Week Header ── */
 .home-week-header {
   display: flex;
@@ -331,5 +387,14 @@
 
   .home-discussions {
     padding: 1rem;
+  }
+
+  .home-about {
+    padding: 1.25rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-about-title {
+    font-size: 1.15rem;
   }
 }

@@ -106,6 +106,21 @@ export default function Home() {
         }
       </div>
 
+      {/* About Section */}
+      <div className="home-about">
+        <h2 className="home-about-title">Welcome to the Double Feature Film Club</h2>
+        <p className="home-about-intro">The idea is simple: a curated list of movies to explore together (or solo).</p>
+        <ul className="home-about-list">
+          <li><span className="home-about-label">who:</span> you! You silly Goose! and us here at Garden District.</li>
+          <li><span className="home-about-label">what:</span> we are watching some fun movies.</li>
+          <li><span className="home-about-label">when:</span> each week — but feel free to chat with us about any of the movies for the month.</li>
+          <li><span className="home-about-label">where:</span> you watch at home then discuss here on the site or whenever you decide to swing on in to the bar.</li>
+          <li><span className="home-about-label">how:</span> just like a book club. You watch at home and come discuss with us. Some of these movies are not on streaming so you may have to rent it or find whatever means to watch it.</li>
+          <li><span className="home-about-label">why:</span> because movies are cool and maybe we can chat about it or it can give you a chance to talk to your neighbors in the Garden about it.</li>
+        </ul>
+        <p className="home-about-rule">Number one rule on the site: <strong>Be kind!</strong></p>
+      </div>
+
       {/* Current Week Header */}
       <div className="home-week-header">
         <div>
