@@ -46,8 +46,8 @@ export default function Profile() {
     }
     setLoading(false)
 
-    // Auto-open edit mode if profile has no avatar (fresh signup)
-    if (data && !data.avatar_url) {
+    // Auto-open edit mode if no profile row or no avatar yet
+    if (!data || !data.avatar_url) {
       setEditing(true)
     }
   }
@@ -92,9 +92,16 @@ export default function Profile() {
       updates.avatar_url = selectedMovie.posterUrl
       updates.favorite_movie = selectedMovie.title
     }
+
+    // Include username so upsert can create the row if it doesn't exist yet
+    const usernameForUpsert = profile?.username
+      || authUser.user_metadata?.username
+      || authUser.email?.split('@')[0]
+      || 'user'
+
     const { data: saved, error } = await supabase
       .from('profiles')
-      .upsert({ id: authUser.id, ...updates }, { onConflict: 'id' })
+      .upsert({ id: authUser.id, username: usernameForUpsert, ...updates }, { onConflict: 'id' })
       .select()
     if (error) {
       console.error('Profile save error:', error)
