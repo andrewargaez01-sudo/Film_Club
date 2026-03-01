@@ -5,7 +5,6 @@ import { searchMovies } from '../tmdb'
 import './Profile.css'
 
 export default function Profile() {
-  const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -27,7 +26,6 @@ export default function Profile() {
         navigate('/login')
         return
       }
-      setUser(session.user)
       fetchProfile(session.user.id)
     })
   }, [])
@@ -76,20 +74,28 @@ export default function Profile() {
   }
 
   async function handleSave() {
-    if (!user) return
     setSaving(true)
     setSaveError(null)
+
+    // Get a fresh session to ensure the auth token is current
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) {
+      setSaveError('Session expired. Please log in again.')
+      setSaving(false)
+      return
+    }
+
     const updates = {
       favorite_quote: quote.trim() || null,
     }
-    if (selectedMovie) {
+    if (selectedMovie?.posterUrl) {
       updates.avatar_url = selectedMovie.posterUrl
       updates.favorite_movie = selectedMovie.title
     }
     const { data: saved, error } = await supabase
       .from('profiles')
       .update(updates)
-      .eq('id', user.id)
+      .eq('id', session.user.id)
       .select()
     if (error) {
       console.error('Profile save error:', error)
