@@ -36,20 +36,12 @@ export default function Login() {
 
   async function handleLogin(e) {
     e.preventDefault()
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setError(error.message)
-      return
+    } else {
+      navigate('/')
     }
-
-    // If no profile row exists yet (e.g. email-confirmed user), create it now
-    const userId = data.user.id
-    const username = data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'user'
-    await supabase
-      .from('profiles')
-      .upsert({ id: userId, username }, { onConflict: 'id', ignoreDuplicates: true })
-
-    navigate('/')
   }
 
   async function handleResetPassword(e) {
