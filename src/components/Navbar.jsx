@@ -75,13 +75,18 @@ export default function Navbar() {
       <nav className="sidebar-nav">
         {links.map(link => {
           const isActive = location.pathname === link.to
+          const showAvatar = link.to === '/profile' && profile?.avatar_url
           return (
             <Link
               key={link.to}
               to={link.to}
               className={`sidebar-link ${isActive ? 'active' : ''}`}
             >
-              <span className="sidebar-link-icon">{link.icon}</span>
+              <span className="sidebar-link-icon">
+                {showAvatar
+                  ? <img src={profile.avatar_url} alt="avatar" className="nav-avatar-icon" />
+                  : link.icon}
+              </span>
               <span>{link.label}</span>
             </Link>
           )

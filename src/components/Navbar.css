@@ -186,6 +186,16 @@
   border-color: #ff6b6b;
 }
 
+/* ── Nav avatar icon (profile link) ── */
+.nav-avatar-icon {
+  width: 22px;
+  height: 33px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  display: block;
+}
+
 /* ── Mobile Only ── */
 .mobile-only {
   display: none;
