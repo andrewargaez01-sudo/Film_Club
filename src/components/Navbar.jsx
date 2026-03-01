@@ -52,7 +52,7 @@ export default function Navbar() {
     { to: '/film-of-the-month', label: 'Films', icon: '🎬' },
     { to: '/discussion', label: 'Discussion', icon: '💬' },
     { to: '/suggestions', label: 'Suggestions', icon: '💡' },
-    { to: '/profile', label: 'My Profile', icon: '👤' },
+    { to: user ? '/profile' : '/register', label: user ? 'My Profile' : 'Register', icon: '👤' },
   ]
 
   const getInitials = (name) => {
