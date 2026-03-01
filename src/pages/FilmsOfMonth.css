@@ -175,3 +175,25 @@
   font-size: 0.82rem;
   margin-top: 0.25rem;
 }
+
+@media (max-width: 768px) {
+  .fom-film-layout,
+  .fom-film-layout.reverse {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fom-poster {
+    width: 120px;
+    height: 180px;
+    flex-shrink: 0;
+  }
+
+  .fom-week-header {
+    flex-wrap: wrap;
+  }
+
+  .fom-card {
+    padding: 1rem;
+  }
+}

@@ -280,3 +280,56 @@
   font-size: 0.8rem;
   margin: 0.25rem 0 0;
 }
+
+@media (max-width: 768px) {
+  .home {
+    margin: 1rem auto;
+  }
+
+  .home-welcome {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-welcome h1 {
+    font-size: 1.6rem;
+  }
+
+  .home-week-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .home-film-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-film-card-top,
+  .home-film-card-top.reverse {
+    flex-direction: column;
+  }
+
+  .home-film-poster-wrap {
+    padding: 1rem 1rem 0;
+    justify-content: center;
+  }
+
+  .home-film-poster {
+    width: 130px;
+    height: 195px;
+  }
+
+  .home-film-info.text-right {
+    text-align: left;
+  }
+
+  .home-film-links.right {
+    justify-content: flex-start;
+  }
+
+  .home-discussions {
+    padding: 1rem;
+  }
+}

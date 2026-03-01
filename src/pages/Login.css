@@ -248,3 +248,17 @@
   color: #ff6b6b;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .auth-film-strip.left {
+    left: 0;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .auth-quote-text {
+    font-size: 0.95rem;
+  }
+}
