@@ -1,36 +1,46 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import './Navbar.css'
 
 export default function Navbar() {
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState(null)
+  const [profile, setProfile] = useState(null)
   const navigate = useNavigate()
   const location = useLocation()
 
-  async function fetchUsername(userId) {
+  async function fetchProfile(userId) {
     const { data } = await supabase
       .from('profiles')
-      .select('username')
+      .select('username, avatar_url, favorite_quote, favorite_movie')
       .eq('id', userId)
       .single()
-    if (data) setUsername(data.username)
+    if (data) setProfile(data)
   }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      if (session?.user) fetchUsername(session.user.id)
+      if (session?.user) fetchProfile(session.user.id)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
-      if (session?.user) fetchUsername(session.user.id)
-      else setUsername(null)
+      if (session?.user) fetchProfile(session.user.id)
+      else setProfile(null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // Re-fetch profile when it's updated from the Profile page
+  useEffect(() => {
+    function handleProfileUpdate() {
+      if (user) fetchProfile(user.id)
+    }
+    window.addEventListener('profile-updated', handleProfileUpdate)
+    return () => window.removeEventListener('profile-updated', handleProfileUpdate)
+  }, [user])
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -42,14 +52,23 @@ export default function Navbar() {
     { to: '/film-of-the-month', label: 'Films', icon: '🎬' },
     { to: '/discussion', label: 'Discussion', icon: '💬' },
     { to: '/suggestions', label: 'Suggestions', icon: '💡' },
+    { to: '/profile', label: 'My Profile', icon: '👤' },
   ]
+
+  const getInitials = (name) => {
+    if (!name) return '?'
+    return name.slice(0, 2).toUpperCase()
+  }
 
   return (
     <div className="sidebar">
 
-      {/* Logo - desktop only */}
+      {/* Logo */}
       <div className="sidebar-logo">
-        <h2 style={{ color: '#ffd93d', margin: 0, fontSize: '1.2rem' }}>Double Feature<br /> Film Club</h2>
+        <h2>
+          Double Feature
+          <span>Film Club</span>
+        </h2>
       </div>
 
       {/* Nav Links */}
@@ -60,14 +79,9 @@ export default function Navbar() {
             <Link
               key={link.to}
               to={link.to}
-              className={`sidebar-nav-link${isActive ? ' active-link' : ''}`}
-              style={{
-                color: isActive ? '#ffd93d' : '#ccc',
-                background: isActive ? 'rgba(255,107,107,0.15)' : 'transparent',
-                borderLeft: isActive ? '3px solid #ff6b6b' : '3px solid transparent',
-              }}
+              className={`sidebar-link ${isActive ? 'active' : ''}`}
             >
-              <span>{link.icon}</span>
+              <span className="sidebar-link-icon">{link.icon}</span>
               <span>{link.label}</span>
             </Link>
           )
@@ -87,24 +101,37 @@ export default function Navbar() {
         )}
       </nav>
 
-      {/* User Section - desktop only */}
+      {/* User Section */}
       <div className="sidebar-user">
         {user ? (
           <>
-            <p style={{ color: '#6bcb77', fontWeight: 'bold', margin: '0 0 0.75rem', fontSize: '0.9rem' }}>
-              👤 {username}
-            </p>
-            <button
-              onClick={handleLogout}
-              style={{ width: '100%', padding: '0.5rem', fontSize: '0.9rem' }}
-            >
-              Logout
+            <Link to="/profile" className="sidebar-user-info" style={{ textDecoration: 'none' }}>
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="avatar" className="sidebar-avatar-img" />
+              ) : (
+                <div className="sidebar-avatar">{getInitials(profile?.username)}</div>
+              )}
+              <div className="sidebar-user-text">
+                <span className="sidebar-username">{profile?.username}</span>
+                {profile?.favorite_quote && (
+                  <span className="sidebar-quote">"{profile.favorite_quote}"</span>
+                )}
+              </div>
+            </Link>
+            <button onClick={handleLogout} className="sidebar-logout">
+              Log out
             </button>
           </>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <Link to="/login" style={{ color: '#ccc', fontSize: '0.9rem' }}>🔑 Login</Link>
-            <Link to="/register" style={{ color: '#ccc', fontSize: '0.9rem' }}>📝 Register</Link>
+          <div className="sidebar-auth">
+            <Link to="/login" className="sidebar-auth-link">
+              <span className="sidebar-link-icon">🔑</span>
+              <span>Login</span>
+            </Link>
+            <Link to="/register" className="sidebar-auth-link">
+              <span className="sidebar-link-icon">📝</span>
+              <span>Register</span>
+            </Link>
           </div>
         )}
       </div>

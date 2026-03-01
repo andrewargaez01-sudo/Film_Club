@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { Link } from 'react-router-dom'
+import './FilmsOfMonth.css'
 
 function getMonthYear(date) {
   return date.toLocaleString('default', { month: 'long', year: 'numeric' })
@@ -101,41 +102,24 @@ export default function FilmsOfMonth() {
   }
 
   return (
-    <div style={{ maxWidth: '750px', margin: '2rem auto', padding: '1rem' }}>
+    <div className="page">
 
       {/* Month Navigator */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: '#1a1a2e',
-        border: '1px solid #ff6b6b',
-        boxShadow: '0 0 12px rgba(255,107,107,0.15)',
-        borderRadius: '12px',
-        padding: '1rem 1.5rem',
-        marginBottom: '2rem'
-      }}>
-        <button onClick={goToPreviousMonth} style={{ background: '#333', fontSize: '1.2rem', padding: '0.3rem 0.9rem' }}>←</button>
+      <div className="month-nav">
+        <button onClick={goToPreviousMonth} className="month-nav-btn">←</button>
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ margin: 0 }}>🎬 {getMonthYear(selectedDate)}</h2>
+          <h2>🎬 {getMonthYear(selectedDate)}</h2>
           {isCurrentMonth() && (
-            <span style={{ color: '#ff6b6b', fontSize: '0.8rem', fontWeight: 'bold' }}>CURRENT MONTH</span>
+            <span className="month-label">CURRENT MONTH</span>
           )}
         </div>
-        <button onClick={goToNextMonth} style={{ background: '#333', fontSize: '1.2rem', padding: '0.3rem 0.9rem' }}>→</button>
+        <button onClick={goToNextMonth} className="month-nav-btn">→</button>
       </div>
 
       {/* Films */}
       {films.length === 0 ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          background: '#1a1a2e',
-          borderRadius: '12px',
-          border: '1px solid #333',
-          color: '#888'
-        }}>
-          <p style={{ fontSize: '1.2rem' }}>No films scheduled for this month yet.</p>
+        <div className="empty-state">
+          <p style={{ fontSize: '1.1rem' }}>No films scheduled for this month yet.</p>
         </div>
       ) : (
         [1, 2, 3, 4].map(week => {
@@ -144,91 +128,46 @@ export default function FilmsOfMonth() {
           const isCurrentWeek = isCurrentMonth() && week === currentWeek
 
           return (
-            <div key={week} style={{ marginBottom: '2rem' }}>
+            <div key={week} className="fom-week">
 
               {/* Week Header */}
-              <div className="week-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                  <span style={{
-                    background: isCurrentWeek ? '#ff6b6b' : '#333',
-                    color: 'white',
-                    padding: '0.3rem 1rem',
-                    borderRadius: '20px',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold',
-                    whiteSpace: 'nowrap',
-                    alignSelf: 'flex-start'
-                  }}>
+              <div className="fom-week-header">
+                <div className="fom-week-meta">
+                  <span className={`week-badge ${isCurrentWeek ? 'current' : ''}`}>
                     WEEK {week} · {getWeekDates(week, selectedDate)} {isCurrentWeek ? '— NOW WATCHING' : ''}
                   </span>
                   {weekFilms[0]?.week_theme && (
-                    <span className="week-theme" style={{ color: '#ffd93d', fontSize: '0.9rem', fontStyle: 'italic', paddingLeft: '0.5rem' }}>
-                      {weekFilms[0].week_theme}
-                    </span>
+                    <span className="fom-week-theme">{weekFilms[0].week_theme}</span>
                   )}
                 </div>
-                <div className="week-header-divider" style={{ flex: 1, height: '1px', background: isCurrentWeek ? '#ff6b6b' : 'linear-gradient(90deg, #4a4a6a, transparent)' }} />
+                <div className={`fom-week-line ${isCurrentWeek ? 'current' : ''}`} />
               </div>
 
               {/* Discussion Link */}
-<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-  <Link to="/discussion" style={{ fontSize: '0.9rem' }}>
-    💬 Go to Discussion →
-  </Link>
-</div>
+              <div className="fom-discuss-link">
+                <Link to="/discussion">💬 Go to Discussion →</Link>
+              </div>
 
-              {/* One long card per week */}
-              <div style={{
-                background: isCurrentWeek ? 'linear-gradient(135deg, #1a1a2e, #16213e)' : '#141414',
-                border: isCurrentWeek ? '2px solid #ff6b6b' : '1px solid #4a4a6a',
-                borderRadius: '12px',
-                padding: '1.25rem',
-                boxShadow: isCurrentWeek ? '0 0 20px rgba(255,107,107,0.2)' : '0 0 10px rgba(74,74,106,0.2)'
-              }}>
+              {/* Film Card */}
+              <div className={`fom-card ${isCurrentWeek ? 'current' : ''}`}>
                 {weekFilms.map((film, index) => {
                   const posterLeft = index % 2 === 0
                   return (
                     <div key={film.id}>
-                      {index > 0 && <hr style={{ borderColor: '#ffd93d33', margin: '1.25rem 0' }} />}
-                      <h2 style={{
-                        fontSize: '1.3rem',
-                        color: '#ffd93d',
-                        borderBottom: '1px solid #ffd93d55',
-                        paddingBottom: '0.4rem',
-                        marginBottom: '1rem',
-                        textAlign: posterLeft ? 'left' : 'right'
-                      }}>
+                      {index > 0 && <hr className="fom-film-divider" />}
+                      <h2 className="fom-film-title" style={{ textAlign: posterLeft ? 'left' : 'right' }}>
                         {film.title}
                       </h2>
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: posterLeft ? 'row' : 'row-reverse',
-                        gap: '1.5rem',
-                        alignItems: 'flex-start'
-                      }}>
+                      <div className={`fom-film-layout ${!posterLeft ? 'reverse' : ''}`}>
                         {film.poster_url && (
-                          <img src={film.poster_url} alt={film.title} style={{
-                            width: '130px',
-                            height: '190px',
-                            objectFit: 'cover',
-                            borderRadius: '8px',
-                            flexShrink: 0
-                          }} />
+                          <img src={film.poster_url} alt={film.title} className="fom-poster" />
                         )}
-                        <div style={{ flex: 1, textAlign: posterLeft ? 'left' : 'right' }}>
-                          <p style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '0.75rem' }}>{film.description}</p>
+                        <div className="fom-film-details" style={{ textAlign: posterLeft ? 'left' : 'right' }}>
+                          <p className="fom-description">{film.description}</p>
                           {ratings[film.id] && (
-                            <p style={{ color: '#ffd93d', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                              ⭐ {ratings[film.id]} / 10
-                            </p>
+                            <p className="fom-rating">⭐ {ratings[film.id]} / 10</p>
                           )}
-                          <div style={{
-                            display: 'flex',
-                            gap: '0.75rem',
-                            marginBottom: '0.75rem',
-                            justifyContent: posterLeft ? 'flex-start' : 'flex-end',
-                            flexWrap: 'wrap'
-                          }}>
+                          <div className="fom-links" style={{ justifyContent: posterLeft ? 'flex-start' : 'flex-end' }}>
                             {film.trailer_url && (
                               <a href={film.trailer_url} target="_blank" rel="noreferrer">▶ Trailer</a>
                             )}
@@ -239,17 +178,12 @@ export default function FilmsOfMonth() {
                           {user ? (
                             <form
                               onSubmit={e => handleRating(e, film)}
-                              style={{
-                                display: 'flex',
-                                gap: '0.5rem',
-                                alignItems: 'center',
-                                justifyContent: posterLeft ? 'flex-start' : 'flex-end'
-                              }}
+                              className="fom-rate-form"
+                              style={{ justifyContent: posterLeft ? 'flex-start' : 'flex-end' }}
                             >
                               <select
                                 value={userRatings[film.id] || ''}
                                 onChange={e => setUserRatings(prev => ({ ...prev, [film.id]: e.target.value }))}
-                                style={{ width: 'auto', padding: '0.3rem' }}
                                 required
                               >
                                 <option value="">Rate</option>
@@ -257,13 +191,13 @@ export default function FilmsOfMonth() {
                                   <option key={i + 1} value={i + 1}>{i + 1}</option>
                                 ))}
                               </select>
-                              <button type="submit" style={{ padding: '0.3rem 0.75rem', fontSize: '0.9rem' }}>Submit</button>
+                              <button type="submit">Submit</button>
                             </form>
                           ) : (
                             <Link to="/login">Log in to rate</Link>
                           )}
                           {messages[film.id] && (
-                            <p style={{ color: '#6bcb77', fontSize: '0.85rem', marginTop: '0.25rem' }}>{messages[film.id]}</p>
+                            <p className="fom-rate-msg">{messages[film.id]}</p>
                           )}
                         </div>
                       </div>

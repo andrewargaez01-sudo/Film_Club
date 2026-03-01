@@ -7,6 +7,7 @@ import FilmsOfMonth from './pages/FilmsOfMonth'
 import Discussion from './pages/Discussion'
 import PostDetail from './pages/PostDetail'
 import Suggestions from './pages/Suggestions'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/discussion" element={<Discussion />} />
           <Route path="/discussion/:id" element={<PostDetail />} />
           <Route path="/suggestions" element={<Suggestions />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </>

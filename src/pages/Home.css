@@ -1,0 +1,282 @@
+/* ── Page Layout ── */
+.home {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+/* ── Welcome Banner ── */
+.home-welcome {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.6), rgba(22, 33, 62, 0.4));
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.home-welcome h1 {
+  font-size: 2.4rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.5px;
+}
+
+.home-welcome p {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.home-welcome p strong {
+  color: #6bcb77;
+}
+
+/* ── Week Header ── */
+.home-week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.home-week-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 0.35rem 1.1rem;
+  border-radius: 20px;
+  fontSize: 0.8rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.home-week-theme {
+  color: #ffd93d;
+  font-style: italic;
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+}
+
+.home-view-all {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.home-view-all:hover {
+  color: #ffd93d;
+  text-decoration: none;
+}
+
+/* ── Film Grid ── */
+.home-film-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ── Film Card ── */
+.home-film-card {
+  background: linear-gradient(135deg, #151520, #1a1a2e);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.home-film-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 107, 107, 0.25);
+}
+
+.home-film-card-top {
+  display: flex;
+  align-items: stretch;
+}
+
+.home-film-card-top.reverse {
+  flex-direction: row-reverse;
+}
+
+/* ── Film Info ── */
+.home-film-info {
+  flex: 1;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.6rem;
+}
+
+.home-film-info.text-right {
+  text-align: right;
+}
+
+.home-film-title {
+  font-size: 1.15rem;
+  color: #ffd93d;
+  margin: 0;
+  font-weight: 700;
+}
+
+.home-film-crew-label {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.65rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.home-film-crew-name {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.home-film-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.home-film-links.right {
+  justify-content: flex-end;
+}
+
+.home-film-links a {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s;
+}
+
+.home-film-links a:hover {
+  color: #ffd93d;
+  background: rgba(255, 215, 61, 0.08);
+  text-decoration: none;
+}
+
+/* ── Poster ── */
+.home-film-poster-wrap {
+  flex-shrink: 0;
+  padding: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-film-poster {
+  width: 200px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(255, 107, 107, 0.15),
+    0 0 50px rgba(255, 107, 107, 0.06);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-film-card:hover .home-film-poster {
+  border-color: rgba(255, 107, 107, 0.4);
+  box-shadow:
+    0 4px 25px rgba(0, 0, 0, 0.4),
+    0 0 35px rgba(255, 107, 107, 0.25),
+    0 0 70px rgba(255, 107, 107, 0.1);
+}
+
+/* ── Film Description ── */
+.home-film-desc {
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.home-film-desc p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Empty / Loading State ── */
+.home-empty-state {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background: rgba(21, 21, 32, 0.5);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 2.5rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.home-empty-state.loading p {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Recent Discussions ── */
+.home-discussions {
+  background: rgba(21, 21, 32, 0.5);
+  border-radius: 14px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.home-discussions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.home-discussions-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.home-discussion-item {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: padding-left 0.2s ease;
+}
+
+.home-discussion-item:last-child {
+  border-bottom: none;
+}
+
+.home-discussion-item:hover {
+  padding-left: 0.5rem;
+}
+
+.home-discussion-item a {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.home-discussion-item a:hover {
+  color: #ffd93d;
+  text-decoration: none;
+}
+
+.home-discussion-meta {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+}

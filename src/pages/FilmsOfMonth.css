@@ -1,0 +1,177 @@
+/* ── Week Section ── */
+.fom-week {
+  margin-bottom: 2rem;
+}
+
+.fom-week-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fom-week-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.fom-week-theme {
+  color: #ffd93d;
+  font-size: 0.88rem;
+  font-style: italic;
+  padding-left: 0.5rem;
+}
+
+.fom-week-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fom-week-line.current {
+  background: rgba(255, 107, 107, 0.25);
+}
+
+.fom-discuss-link {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.fom-discuss-link a {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.35);
+  transition: color 0.2s;
+}
+
+.fom-discuss-link a:hover {
+  color: #ffd93d;
+}
+
+/* ── Film Card ── */
+.fom-card {
+  background: rgba(21, 21, 32, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.fom-card.current {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.7), rgba(22, 33, 62, 0.5));
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.fom-card:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.fom-film-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 215, 61, 0.1);
+  margin: 1.25rem 0;
+}
+
+.fom-film-title {
+  font-size: 1.25rem;
+  color: #ffd93d;
+  border-bottom: 1px solid rgba(255, 215, 61, 0.1);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.fom-film-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.fom-film-layout.reverse {
+  flex-direction: row-reverse;
+}
+
+.fom-poster {
+  width: 130px;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 107, 107, 0.15);
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 107, 107, 0.12),
+    0 0 40px rgba(255, 107, 107, 0.05);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.fom-card:hover .fom-poster {
+  border-color: rgba(255, 107, 107, 0.35);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 107, 107, 0.2),
+    0 0 60px rgba(255, 107, 107, 0.08);
+}
+
+.fom-film-details {
+  flex: 1;
+}
+
+.fom-description {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.fom-rating {
+  color: #ffd93d;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.fom-links {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.fom-links a {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s;
+}
+
+.fom-links a:hover {
+  color: #ffd93d;
+  background: rgba(255, 215, 61, 0.08);
+}
+
+/* ── Rating Form ── */
+.fom-rate-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.fom-rate-form select {
+  width: auto;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.fom-rate-form button {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.fom-rate-msg {
+  color: #6bcb77;
+  font-size: 0.82rem;
+  margin-top: 0.25rem;
+}
