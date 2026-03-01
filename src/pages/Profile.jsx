@@ -86,13 +86,17 @@ export default function Profile() {
       updates.avatar_url = selectedMovie.posterUrl
       updates.favorite_movie = selectedMovie.title
     }
-    const { error } = await supabase
+    const { data: saved, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
+      .select()
+      .single()
     if (error) {
       console.error('Profile save error:', error)
       setSaveError(error.message)
+    } else if (!saved) {
+      setSaveError('Save failed — your profile may not have permission to update. Check Supabase row-level security settings.')
     } else {
       setProfile(prev => ({ ...prev, ...updates }))
       setEditing(false)

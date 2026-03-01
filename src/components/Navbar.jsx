@@ -42,6 +42,11 @@ export default function Navbar() {
     return () => window.removeEventListener('profile-updated', handleProfileUpdate)
   }, [user])
 
+  // Re-fetch profile on every page navigation to stay in sync
+  useEffect(() => {
+    if (user) fetchProfile(user.id)
+  }, [location.pathname, user])
+
   async function handleLogout() {
     await supabase.auth.signOut()
     navigate('/login')
