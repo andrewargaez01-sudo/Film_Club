@@ -94,8 +94,7 @@ export default function Profile() {
     }
     const { data: saved, error } = await supabase
       .from('profiles')
-      .update(updates)
-      .eq('id', authUser.id)
+      .upsert({ id: authUser.id, ...updates }, { onConflict: 'id' })
       .select()
     if (error) {
       console.error('Profile save error:', error)
