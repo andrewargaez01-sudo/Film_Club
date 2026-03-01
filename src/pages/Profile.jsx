@@ -77,10 +77,10 @@ export default function Profile() {
     setSaving(true)
     setSaveError(null)
 
-    // Get a fresh session to ensure the auth token is current
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user) {
-      setSaveError('Session expired. Please log in again.')
+    // Validate the token server-side to ensure auth.uid() works in RLS
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+    if (authError || !authUser) {
+      setSaveError('Authentication error. Please log in again.')
       setSaving(false)
       return
     }
@@ -95,7 +95,7 @@ export default function Profile() {
     const { data: saved, error } = await supabase
       .from('profiles')
       .update(updates)
-      .eq('id', session.user.id)
+      .eq('id', authUser.id)
       .select()
     if (error) {
       console.error('Profile save error:', error)
