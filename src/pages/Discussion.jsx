@@ -258,17 +258,9 @@ export default function Discussion() {
               {/* Film A */}
               <FilmCard film={weekFilms[0]} rating={ratings[weekFilms[0]?.id]} />
 
-              {/* VS Divider */}
+              {/* Film B */}
               {weekFilms.length >= 2 && (
-                <>
-                  <div className="disc-vs">
-                    <div className="disc-vs-line" />
-                    <div className="disc-vs-badge">VS</div>
-                    <div className="disc-vs-line" />
-                  </div>
-                  {/* Film B */}
-                  <FilmCard film={weekFilms[1]} rating={ratings[weekFilms[1]?.id]} />
-                </>
+                <FilmCard film={weekFilms[1]} rating={ratings[weekFilms[1]?.id]} />
               )}
             </div>
 
@@ -348,13 +340,6 @@ export default function Discussion() {
                           </button>
                           <button
                             type="button"
-                            className={`disc-tag-btn ${postTag === 'vs' ? 'active-vs' : ''}`}
-                            onClick={() => setPostTag('vs')}
-                          >
-                            Comparing Both
-                          </button>
-                          <button
-                            type="button"
                             className={`disc-tag-btn ${postTag === 'general' ? 'active' : ''}`}
                             onClick={() => setPostTag('general')}
                           >
@@ -413,10 +398,6 @@ export default function Discussion() {
                 className={`disc-filter-btn ${filter === 'film1' ? 'active' : ''}`}
                 onClick={() => setFilter('film1')}
               >{weekFilms[1].title}</button>
-              <button
-                className={`disc-filter-btn ${filter === 'vs' ? 'active' : ''}`}
-                onClick={() => setFilter('vs')}
-              >Comparisons</button>
               <button
                 className={`disc-filter-btn ${filter === 'general' ? 'active' : ''}`}
                 onClick={() => setFilter('general')}
