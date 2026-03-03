@@ -433,6 +433,67 @@ select.admin-input {
   color: #ff6b6b;
 }
 
+.admin-field-hint {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.admin-prompts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-prompt-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.admin-prompt-row .admin-input {
+  flex: 1;
+  margin: 0;
+}
+
+.admin-prompt-remove {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.admin-prompt-remove:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+}
+
+.admin-prompt-add {
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.78rem;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.admin-prompt-add:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.6);
+}
+
 .admin-edit-banner {
   padding: 0.6rem 0.85rem;
   background: rgba(100, 180, 255, 0.06);
