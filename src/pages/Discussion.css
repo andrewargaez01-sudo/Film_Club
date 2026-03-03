@@ -379,6 +379,19 @@
   text-align: center;
 }
 
+.disc-compare-header {
+  justify-content: center;
+  gap: 0.5rem;
+  border-bottom-color: rgba(255, 215, 61, 0.1);
+}
+
+.disc-compare-header h4 {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  text-align: center;
+}
+
 .disc-compare-section ul {
   list-style: none;
   padding: 0;

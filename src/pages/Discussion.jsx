@@ -56,6 +56,8 @@ export default function Discussion() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [editingPrompts, setEditingPrompts] = useState(null) // { filmId, prompts[] }
   const [savingPrompts, setSavingPrompts] = useState(false)
+  const [editingCompare, setEditingCompare] = useState(null) // prompts[]
+  const [savingCompare, setSavingCompare] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -183,6 +185,29 @@ export default function Discussion() {
       `Which performance stood out more across both films?`,
       `How does each film handle its central theme differently?`,
     ]
+  }
+
+  function getComparePromptsForDisplay() {
+    if (weekFilms[0]?.compare_points) {
+      return weekFilms[0].compare_points.split('|').map(p => p.trim())
+    }
+    return getComparePrompts()
+  }
+
+  async function saveComparePrompts() {
+    if (!editingCompare || !weekFilms[0]) return
+    setSavingCompare(true)
+    const filtered = editingCompare.filter(p => p.trim())
+    const value = filtered.length ? filtered.join('|') : null
+    const { error } = await supabase
+      .from('films')
+      .update({ compare_points: value })
+      .eq('id', weekFilms[0].id)
+    if (!error) {
+      setFilms(prev => prev.map(f => f.id === weekFilms[0].id ? { ...f, compare_points: value } : f))
+      setEditingCompare(null)
+    }
+    setSavingCompare(false)
   }
 
   async function savePrompts() {
@@ -358,10 +383,56 @@ export default function Discussion() {
                     {renderPromptsCol(weekFilms[1])}
                   </div>
                   <div className="disc-compare-section">
-                    <h4>Compare Them</h4>
-                    <ul>
-                      {getComparePrompts().map((p, i) => <li key={i}>{p}</li>)}
-                    </ul>
+                    <div className="disc-prompts-col-header disc-compare-header">
+                      <h4>Compare Them</h4>
+                      {isAdmin && !editingCompare && (
+                        <button
+                          className="disc-prompts-edit-btn"
+                          title="Edit compare prompts"
+                          onClick={() => setEditingCompare(getComparePromptsForDisplay())}
+                        >✏️</button>
+                      )}
+                    </div>
+                    {editingCompare ? (
+                      <div className="disc-prompt-editor">
+                        {editingCompare.map((p, i) => (
+                          <div key={i} className="disc-prompt-edit-row">
+                            <input
+                              className="disc-prompt-edit-input"
+                              value={p}
+                              onChange={e => {
+                                const next = [...editingCompare]
+                                next[i] = e.target.value
+                                setEditingCompare(next)
+                              }}
+                            />
+                            <button
+                              className="disc-prompt-remove-btn"
+                              onClick={() => setEditingCompare(prev => prev.filter((_, idx) => idx !== i))}
+                            >×</button>
+                          </div>
+                        ))}
+                        <button
+                          className="disc-prompt-add-btn"
+                          onClick={() => setEditingCompare(prev => [...prev, ''])}
+                        >+ Add prompt</button>
+                        <div className="disc-prompt-save-actions">
+                          <button
+                            className="disc-prompt-save-btn"
+                            onClick={saveComparePrompts}
+                            disabled={savingCompare}
+                          >{savingCompare ? 'Saving...' : 'Save'}</button>
+                          <button
+                            className="disc-prompt-cancel-btn"
+                            onClick={() => setEditingCompare(null)}
+                          >Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <ul>
+                        {getComparePromptsForDisplay().map((p, i) => <li key={i}>{p}</li>)}
+                      </ul>
+                    )}
                   </div>
                 </>
               ) : (
