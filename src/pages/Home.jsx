@@ -173,6 +173,12 @@ export default function Home() {
                         <p className="home-film-crew-name">{film.cinematographer}</p>
                       </div>
                     )}
+                    {film.starring && (
+                      <div>
+                        <p className="home-film-crew-label">Starring</p>
+                        <p className="home-film-crew-name">{film.starring}</p>
+                      </div>
+                    )}
                     {ratings[film.id] && (
                       <div>
                         <StarRating score={ratings[film.id]} />

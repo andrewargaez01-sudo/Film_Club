@@ -478,6 +478,12 @@ function FilmCard({ film, rating }) {
           <p className="disc-film-crew-name">{film.cinematographer}</p>
         </div>
       )}
+      {film.starring && (
+        <div className="disc-film-crew">
+          <p className="disc-film-crew-label">Starring</p>
+          <p className="disc-film-crew-name">{film.starring}</p>
+        </div>
+      )}
       {ratingOut5 && (
         <p className="disc-film-rating">⭐ {ratingOut5} / 5</p>
       )}

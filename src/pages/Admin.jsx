@@ -35,6 +35,10 @@ export default function Admin() {
   const [submitError, setSubmitError] = useState(null)
   const [submitSuccess, setSubmitSuccess] = useState(false)
 
+  // Backfill cast
+  const [backfilling, setBackfilling] = useState(false)
+  const [backfillStatus, setBackfillStatus] = useState(null)
+
   // ── Auth check ──
   useEffect(() => {
     async function check() {
@@ -80,6 +84,40 @@ export default function Admin() {
     fetchFilms()
   }
 
+  // ── Backfill starring for all films missing it ──
+  async function handleBackfillCast() {
+    setBackfilling(true)
+    setBackfillStatus('Fetching all films without cast info...')
+
+    const { data: allFilms } = await supabase
+      .from('films')
+      .select('id, title')
+      .is('starring', null)
+
+    if (!allFilms || allFilms.length === 0) {
+      setBackfillStatus('All films already have cast info.')
+      setBackfilling(false)
+      return
+    }
+
+    let updated = 0
+    let failed = 0
+
+    for (const film of allFilms) {
+      setBackfillStatus(`Looking up "${film.title}"... (${updated + failed + 1}/${allFilms.length})`)
+      const results = await searchMovies(film.title)
+      if (!results || results.length === 0) { failed++; continue }
+      const details = await getMovieDetails(results[0].id)
+      if (!details?.starring) { failed++; continue }
+      await supabase.from('films').update({ starring: details.starring }).eq('id', film.id)
+      updated++
+    }
+
+    setBackfillStatus(`Done! Updated ${updated} film${updated !== 1 ? 's' : ''}${failed > 0 ? `, ${failed} skipped` : ''}.`)
+    setBackfilling(false)
+    fetchFilms()
+  }
+
   // ── TMDB search (debounced) ──
   useEffect(() => {
     if (!query || query.length < 2) { setSearchResults([]); return }
@@ -114,6 +152,7 @@ export default function Admin() {
       director: d.director || '',
       writer: d.writer || '',
       cinematographer: d.cinematographer || '',
+      starring: d.starring || '',
       where_to_watch: '',
       month_year: defaultMonth,
       week_number: 1,
@@ -142,6 +181,7 @@ export default function Admin() {
       director: form.director.trim() || null,
       writer: form.writer.trim() || null,
       cinematographer: form.cinematographer.trim() || null,
+      starring: form.starring.trim() || null,
       where_to_watch: form.where_to_watch.trim() || null,
       month_year: form.month_year.trim(),
       month: form.month_year.split(' ')[0],
@@ -282,6 +322,11 @@ export default function Admin() {
                     <input className="admin-input" value={form.cinematographer} onChange={e => updateForm('cinematographer', e.target.value)} />
                   </div>
 
+                  <div className="admin-field admin-field-full">
+                    <label className="admin-label">Starring</label>
+                    <input className="admin-input" placeholder="e.g. Cary Grant, Ingrid Bergman" value={form.starring} onChange={e => updateForm('starring', e.target.value)} />
+                  </div>
+
                   <div className="admin-field">
                     <label className="admin-label">Trailer URL</label>
                     <input className="admin-input" placeholder="https://youtube.com/watch?v=..." value={form.trailer_url} onChange={e => updateForm('trailer_url', e.target.value)} />
@@ -346,6 +391,15 @@ export default function Admin() {
                 ))}
               </select>
             </div>
+
+            <button
+              className="admin-backfill-btn"
+              onClick={handleBackfillCast}
+              disabled={backfilling}
+            >
+              {backfilling ? '⏳ Fetching cast...' : '🎭 Fetch Missing Cast from TMDB'}
+            </button>
+            {backfillStatus && <p className="admin-backfill-status">{backfillStatus}</p>}
 
             {filmsLoading ? (
               <p className="admin-search-status">Loading...</p>

@@ -448,3 +448,33 @@ select.admin-input {
     grid-column: 1;
   }
 }
+
+.admin-backfill-btn {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 215, 61, 0.06);
+  border: 1px dashed rgba(255, 215, 61, 0.25);
+  border-radius: 8px;
+  color: #ffd93d;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-backfill-btn:hover:not(:disabled) {
+  background: rgba(255, 215, 61, 0.12);
+  border-style: solid;
+}
+
+.admin-backfill-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-backfill-status {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 0.75rem;
+}

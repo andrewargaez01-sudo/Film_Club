@@ -118,6 +118,21 @@
   flex: 1;
 }
 
+.fom-starring {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.5rem;
+}
+
+.fom-crew-label {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-right: 0.35rem;
+}
+
 .fom-description {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.9rem;

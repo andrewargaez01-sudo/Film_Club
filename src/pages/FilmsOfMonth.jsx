@@ -163,6 +163,9 @@ export default function FilmsOfMonth() {
                           <img src={film.poster_url} alt={film.title} className="fom-poster" />
                         )}
                         <div className="fom-film-details" style={{ textAlign: posterLeft ? 'left' : 'right' }}>
+                          {film.starring && (
+                            <p className="fom-starring"><span className="fom-crew-label">Starring</span> {film.starring}</p>
+                          )}
                           <p className="fom-description">{film.description}</p>
                           {ratings[film.id] && (
                             <p className="fom-rating">⭐ {ratings[film.id]} / 10</p>

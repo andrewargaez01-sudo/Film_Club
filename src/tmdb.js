@@ -61,6 +61,8 @@ export async function getMovieDetails(id) {
   const data = await res.json()
   const crew = data.credits?.crew || []
 
+  const cast = (data.credits?.cast || []).slice(0, 4).map(a => a.name).join(', ')
+
   return {
     id: data.id,
     title: data.title,
@@ -69,6 +71,7 @@ export async function getMovieDetails(id) {
     director: crew.find(c => c.job === 'Director')?.name || null,
     writer: crew.find(c => ['Screenplay', 'Writer', 'Story'].includes(c.job))?.name || null,
     cinematographer: crew.find(c => c.job === 'Director of Photography')?.name || null,
+    starring: cast || null,
     trailer: (data.videos?.results || []).find(
       v => v.type === 'Trailer' && v.site === 'YouTube'
     )?.key || null,
