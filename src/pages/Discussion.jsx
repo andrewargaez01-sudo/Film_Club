@@ -53,10 +53,17 @@ export default function Discussion() {
   const [postTag, setPostTag] = useState('general')
   const [filter, setFilter] = useState('all')
   const [showForm, setShowForm] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [editingPrompts, setEditingPrompts] = useState(null) // { filmId, prompts[] }
+  const [savingPrompts, setSavingPrompts] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+      if (session?.user) {
+        supabase.from('profiles').select('is_admin').eq('id', session.user.id).single()
+          .then(({ data }) => setIsAdmin(!!data?.is_admin))
+      }
     })
   }, [])
 
@@ -178,6 +185,84 @@ export default function Discussion() {
     ]
   }
 
+  async function savePrompts() {
+    if (!editingPrompts) return
+    setSavingPrompts(true)
+    const { filmId, prompts } = editingPrompts
+    const filtered = prompts.filter(p => p.trim())
+    const value = filtered.length ? filtered.join('|') : null
+    const { error } = await supabase
+      .from('films')
+      .update({ discussion_points: value })
+      .eq('id', filmId)
+    if (!error) {
+      setFilms(prev => prev.map(f => f.id === filmId ? { ...f, discussion_points: value } : f))
+      setEditingPrompts(null)
+    }
+    setSavingPrompts(false)
+  }
+
+  function renderPromptsCol(film) {
+    const isEditing = editingPrompts?.filmId === film.id
+    return (
+      <div className="disc-prompts-col" key={film.id}>
+        <div className="disc-prompts-col-header">
+          <h4>Discuss: {film.title}</h4>
+          {isAdmin && !isEditing && (
+            <button
+              className="disc-prompts-edit-btn"
+              title="Edit prompts"
+              onClick={() => setEditingPrompts({ filmId: film.id, prompts: getFilmPrompts(film) })}
+            >✏️</button>
+          )}
+        </div>
+        {isEditing ? (
+          <div className="disc-prompt-editor">
+            {editingPrompts.prompts.map((p, i) => (
+              <div key={i} className="disc-prompt-edit-row">
+                <input
+                  className="disc-prompt-edit-input"
+                  value={p}
+                  onChange={e => {
+                    const next = [...editingPrompts.prompts]
+                    next[i] = e.target.value
+                    setEditingPrompts(prev => ({ ...prev, prompts: next }))
+                  }}
+                />
+                <button
+                  className="disc-prompt-remove-btn"
+                  onClick={() => setEditingPrompts(prev => ({
+                    ...prev,
+                    prompts: prev.prompts.filter((_, idx) => idx !== i)
+                  }))}
+                >×</button>
+              </div>
+            ))}
+            <button
+              className="disc-prompt-add-btn"
+              onClick={() => setEditingPrompts(prev => ({ ...prev, prompts: [...prev.prompts, ''] }))}
+            >+ Add prompt</button>
+            <div className="disc-prompt-save-actions">
+              <button
+                className="disc-prompt-save-btn"
+                onClick={savePrompts}
+                disabled={savingPrompts}
+              >{savingPrompts ? 'Saving...' : 'Save'}</button>
+              <button
+                className="disc-prompt-cancel-btn"
+                onClick={() => setEditingPrompts(null)}
+              >Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <ul>
+            {getFilmPrompts(film).map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
+        )}
+      </div>
+    )
+  }
+
   // Filter posts
   const weekPosts = posts[activeWeek] || []
   const filteredPosts = weekPosts.filter(post => {
@@ -269,18 +354,8 @@ export default function Discussion() {
               {weekFilms.length >= 2 ? (
                 <>
                   <div className="disc-prompts-grid">
-                    <div className="disc-prompts-col">
-                      <h4>Discuss: {weekFilms[0].title}</h4>
-                      <ul>
-                        {getFilmPrompts(weekFilms[0]).map((p, i) => <li key={i}>{p}</li>)}
-                      </ul>
-                    </div>
-                    <div className="disc-prompts-col">
-                      <h4>Discuss: {weekFilms[1].title}</h4>
-                      <ul>
-                        {getFilmPrompts(weekFilms[1]).map((p, i) => <li key={i}>{p}</li>)}
-                      </ul>
-                    </div>
+                    {renderPromptsCol(weekFilms[0])}
+                    {renderPromptsCol(weekFilms[1])}
                   </div>
                   <div className="disc-compare-section">
                     <h4>Compare Them</h4>
@@ -290,12 +365,7 @@ export default function Discussion() {
                   </div>
                 </>
               ) : (
-                <div className="disc-prompts-col">
-                  <h4>Discuss: {weekFilms[0].title}</h4>
-                  <ul>
-                    {getFilmPrompts(weekFilms[0]).map((p, i) => <li key={i}>{p}</li>)}
-                  </ul>
-                </div>
+                renderPromptsCol(weekFilms[0])
               )}
             </div>
 
