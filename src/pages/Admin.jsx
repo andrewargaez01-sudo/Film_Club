@@ -11,6 +11,27 @@ const MONTHS = [
 
 const CURRENT_YEAR = new Date().getFullYear()
 
+// Generate ordered month options from September 2025 to 12 months from now
+function buildMonthOptions() {
+  const options = []
+  const start = { year: 2025, month: 8 } // September 2025 (0-indexed)
+  const now = new Date()
+  const endYear = now.getFullYear()
+  const endMonth = now.getMonth() + 12 // 12 months ahead
+
+  let y = start.year
+  let m = start.month
+  while (y < endYear || (y === endYear && m <= endMonth % 12) || y <= endYear + 1) {
+    options.push(`${MONTHS[m]} ${y}`)
+    m++
+    if (m > 11) { m = 0; y++ }
+    if (y > endYear + 1) break
+  }
+  return options
+}
+
+const MONTH_OPTIONS = buildMonthOptions()
+
 export default function Admin() {
   const navigate = useNavigate()
 
@@ -89,10 +110,16 @@ export default function Admin() {
     setBackfilling(true)
     setBackfillStatus('Fetching all films without cast info...')
 
-    const { data: allFilms } = await supabase
+    const { data: allFilms, error: fetchError } = await supabase
       .from('films')
       .select('id, title')
       .is('starring', null)
+
+    if (fetchError) {
+      setBackfillStatus(`Error fetching films: ${fetchError.message}. Make sure you've run: ALTER TABLE films ADD COLUMN starring text;`)
+      setBackfilling(false)
+      return
+    }
 
     if (!allFilms || allFilms.length === 0) {
       setBackfillStatus('All films already have cast info.')
@@ -102,18 +129,36 @@ export default function Admin() {
 
     let updated = 0
     let failed = 0
+    const failedTitles = []
 
     for (const film of allFilms) {
       setBackfillStatus(`Looking up "${film.title}"... (${updated + failed + 1}/${allFilms.length})`)
       const results = await searchMovies(film.title)
-      if (!results || results.length === 0) { failed++; continue }
+      if (!results || results.length === 0) {
+        failed++
+        failedTitles.push(film.title)
+        continue
+      }
       const details = await getMovieDetails(results[0].id)
-      if (!details?.starring) { failed++; continue }
-      await supabase.from('films').update({ starring: details.starring }).eq('id', film.id)
-      updated++
+      if (!details?.starring) {
+        failed++
+        failedTitles.push(film.title)
+        continue
+      }
+      const { error: updateError } = await supabase
+        .from('films')
+        .update({ starring: details.starring })
+        .eq('id', film.id)
+      if (updateError) {
+        failed++
+        failedTitles.push(`${film.title} (${updateError.message})`)
+      } else {
+        updated++
+      }
     }
 
-    setBackfillStatus(`Done! Updated ${updated} film${updated !== 1 ? 's' : ''}${failed > 0 ? `, ${failed} skipped` : ''}.`)
+    const failMsg = failedTitles.length > 0 ? ` | Skipped: ${failedTitles.join(', ')}` : ''
+    setBackfillStatus(`Done! Updated ${updated} film${updated !== 1 ? 's' : ''}${failMsg}`)
     setBackfilling(false)
     fetchFilms()
   }
@@ -167,14 +212,46 @@ export default function Admin() {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
-  // ── Submit film ──
+  // ── Load a film into the form for editing ──
+  async function handleEdit(film) {
+    setSubmitError(null)
+    setSubmitSuccess(false)
+    // Fetch full film data
+    const { data } = await supabase
+      .from('films')
+      .select('*')
+      .eq('id', film.id)
+      .single()
+    if (!data) return
+    setForm({
+      _editId: data.id,
+      title: data.title || '',
+      description: data.description || '',
+      poster_url: data.poster_url || '',
+      posters: [],
+      trailer_url: data.trailer_url || '',
+      director: data.director || '',
+      writer: data.writer || '',
+      cinematographer: data.cinematographer || '',
+      starring: data.starring || '',
+      where_to_watch: data.where_to_watch || '',
+      month_year: data.month_year || '',
+      week_number: data.week_number || 1,
+      week_theme: data.week_theme || '',
+      is_current: data.is_current || false,
+    })
+    // Scroll left panel into view
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // ── Submit film (insert or update) ──
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
     setSubmitError(null)
     setSubmitSuccess(false)
 
-    const insert = {
+    const payload = {
       title: form.title.trim(),
       description: form.description.trim() || null,
       poster_url: form.poster_url.trim() || null,
@@ -191,13 +268,19 @@ export default function Admin() {
       is_current: form.is_current,
     }
 
-    const { error } = await supabase.from('films').insert(insert)
+    let error
+    if (form._editId) {
+      ;({ error } = await supabase.from('films').update(payload).eq('id', form._editId))
+    } else {
+      ;({ error } = await supabase.from('films').insert(payload))
+    }
+
     if (error) {
       setSubmitError(error.message)
     } else {
       setSubmitSuccess(true)
       setForm(null)
-      if (insert.month_year === filterMonth) fetchFilms()
+      if (payload.month_year === filterMonth) fetchFilms()
     }
     setSubmitting(false)
   }
@@ -262,6 +345,9 @@ export default function Admin() {
             {/* Film form */}
             {form && (
               <form className="admin-form" onSubmit={handleSubmit}>
+                {form._editId && (
+                  <p className="admin-edit-banner">✏️ Editing: <strong>{form.title}</strong></p>
+                )}
 
                 {/* Poster picker */}
                 {form.posters && form.posters.length > 1 ? (
@@ -295,7 +381,7 @@ export default function Admin() {
                   className="admin-change-btn"
                   onClick={() => { setForm(null); setQuery('') }}
                 >
-                  ← Search a different movie
+                  {form._editId ? '← Cancel edit' : '← Search a different movie'}
                 </button>
 
                 <div className="admin-form-grid">
@@ -376,7 +462,9 @@ export default function Admin() {
 
                 <div className="admin-form-actions">
                   <button type="submit" className="admin-submit-btn" disabled={submitting}>
-                    {submitting ? 'Adding...' : '+ Add to Film Club'}
+                    {submitting
+                      ? (form._editId ? 'Saving...' : 'Adding...')
+                      : (form._editId ? '✓ Save Changes' : '+ Add to Film Club')}
                   </button>
                 </div>
               </form>
@@ -384,7 +472,7 @@ export default function Admin() {
 
             {submitSuccess && (
               <div className="admin-success">
-                Film added! <button className="admin-add-another" onClick={() => setSubmitSuccess(false)}>Add another →</button>
+                {form?._editId ? 'Changes saved!' : 'Film added!'} <button className="admin-add-another" onClick={() => setSubmitSuccess(false)}>Add another →</button>
               </div>
             )}
           </div>
@@ -400,10 +488,7 @@ export default function Admin() {
                 value={filterMonth}
                 onChange={e => setFilterMonth(e.target.value)}
               >
-                {MONTHS.flatMap(m => [
-                  `${m} ${CURRENT_YEAR}`,
-                  `${m} ${CURRENT_YEAR + 1}`,
-                ]).map(mo => (
+                {MONTH_OPTIONS.map(mo => (
                   <option key={mo} value={mo}>{mo}</option>
                 ))}
               </select>
@@ -442,6 +527,13 @@ export default function Admin() {
                         title={film.is_current ? 'Remove from current' : 'Mark as current'}
                       >
                         {film.is_current ? '★' : '☆'}
+                      </button>
+                      <button
+                        className="admin-edit-btn"
+                        onClick={() => handleEdit(film)}
+                        title="Edit film"
+                      >
+                        ✏️
                       </button>
                       <button
                         className="admin-delete-btn"

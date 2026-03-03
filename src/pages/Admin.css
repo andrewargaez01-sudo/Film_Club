@@ -399,6 +399,7 @@ select.admin-input {
 }
 
 .admin-toggle-current,
+.admin-edit-btn,
 .admin-delete-btn {
   width: 28px;
   height: 28px;
@@ -420,10 +421,26 @@ select.admin-input {
   color: #ffd93d;
 }
 
+.admin-edit-btn:hover {
+  background: rgba(100, 180, 255, 0.1);
+  border-color: rgba(100, 180, 255, 0.3);
+  color: #64b4ff;
+}
+
 .admin-delete-btn:hover {
   background: rgba(255, 107, 107, 0.1);
   border-color: rgba(255, 107, 107, 0.3);
   color: #ff6b6b;
+}
+
+.admin-edit-banner {
+  padding: 0.6rem 0.85rem;
+  background: rgba(100, 180, 255, 0.06);
+  border: 1px solid rgba(100, 180, 255, 0.15);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
 }
 
 @media (max-width: 768px) {
