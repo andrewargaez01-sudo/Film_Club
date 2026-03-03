@@ -53,7 +53,7 @@ export async function getMovieDetails(id) {
   if (!TMDB_KEY) return null
 
   const res = await fetch(
-    `${TMDB_BASE}/movie/${id}?append_to_response=credits,videos`,
+    `${TMDB_BASE}/movie/${id}?append_to_response=credits,videos,images&include_image_language=en,null`,
     { headers: { Authorization: `Bearer ${TMDB_KEY}` } }
   )
   if (!res.ok) return null
@@ -63,11 +63,20 @@ export async function getMovieDetails(id) {
 
   const cast = (data.credits?.cast || []).slice(0, 4).map(a => a.name).join(', ')
 
+  // Collect all available poster options (primary first, then extras)
+  const posterPaths = []
+  if (data.poster_path) posterPaths.push(data.poster_path)
+  for (const img of (data.images?.posters || [])) {
+    if (!posterPaths.includes(img.file_path)) posterPaths.push(img.file_path)
+    if (posterPaths.length >= 8) break
+  }
+
   return {
     id: data.id,
     title: data.title,
     overview: data.overview,
     posterUrl: posterUrl(data.poster_path, 'w500'),
+    posters: posterPaths.map(p => ({ thumb: posterUrl(p, 'w185'), full: posterUrl(p, 'w500') })),
     director: crew.find(c => c.job === 'Director')?.name || null,
     writer: crew.find(c => ['Screenplay', 'Writer', 'Story'].includes(c.job))?.name || null,
     cinematographer: crew.find(c => c.job === 'Director of Photography')?.name || null,

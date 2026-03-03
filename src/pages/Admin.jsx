@@ -148,6 +148,7 @@ export default function Admin() {
       title: d.title || movie.title,
       description: d.overview || '',
       poster_url: d.posterUrl || movie.posterUrl || '',
+      posters: d.posters || [],
       trailer_url: d.trailer ? `https://www.youtube.com/watch?v=${d.trailer}` : '',
       director: d.director || '',
       writer: d.writer || '',
@@ -262,8 +263,24 @@ export default function Admin() {
             {form && (
               <form className="admin-form" onSubmit={handleSubmit}>
 
-                {/* Poster preview */}
-                {form.poster_url && (
+                {/* Poster picker */}
+                {form.posters && form.posters.length > 1 ? (
+                  <div className="admin-poster-picker">
+                    <p className="admin-label">Select a poster</p>
+                    <div className="admin-poster-grid">
+                      {form.posters.map((p, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className={`admin-poster-option ${form.poster_url === p.full ? 'selected' : ''}`}
+                          onClick={() => updateForm('poster_url', p.full)}
+                        >
+                          <img src={p.thumb} alt={`Poster ${i + 1}`} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : form.poster_url ? (
                   <div className="admin-poster-preview">
                     <img src={form.poster_url} alt={form.title} />
                     <div className="admin-poster-info">
@@ -271,7 +288,7 @@ export default function Admin() {
                       {form.director && <span>dir. {form.director}</span>}
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 <button
                   type="button"

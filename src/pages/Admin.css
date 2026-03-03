@@ -449,6 +449,45 @@ select.admin-input {
   }
 }
 
+.admin-poster-picker {
+  margin-bottom: 1rem;
+}
+
+.admin-poster-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.admin-poster-option {
+  padding: 0;
+  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.admin-poster-option img {
+  display: block;
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+}
+
+.admin-poster-option:hover {
+  border-color: rgba(255, 215, 61, 0.4);
+  transform: scale(1.04);
+}
+
+.admin-poster-option.selected {
+  border-color: #ffd93d;
+  box-shadow: 0 0 12px rgba(255, 215, 61, 0.3);
+}
+
 .admin-backfill-btn {
   width: 100%;
   padding: 0.6rem 1rem;
