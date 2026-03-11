@@ -204,32 +204,12 @@ export default function Admin() {
       week_number: 1,
       week_theme: '',
       is_current: false,
-      prompts: ['', '', ''],
     })
     setLoadingDetails(false)
   }
 
   function updateForm(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))
-  }
-
-  function updatePrompt(index, value) {
-    setForm(prev => {
-      const prompts = [...prev.prompts]
-      prompts[index] = value
-      return { ...prev, prompts }
-    })
-  }
-
-  function addPrompt() {
-    setForm(prev => ({ ...prev, prompts: [...prev.prompts, ''] }))
-  }
-
-  function removePrompt(index) {
-    setForm(prev => ({
-      ...prev,
-      prompts: prev.prompts.filter((_, i) => i !== index),
-    }))
   }
 
   // ── Load a film into the form for editing ──
@@ -243,9 +223,6 @@ export default function Admin() {
       .eq('id', film.id)
       .single()
     if (!data) return
-    const existingPrompts = data.discussion_points
-      ? data.discussion_points.split('|').map(p => p.trim())
-      : ['', '', '']
     setForm({
       _editId: data.id,
       title: data.title || '',
@@ -262,7 +239,6 @@ export default function Admin() {
       week_number: data.week_number || 1,
       week_theme: data.week_theme || '',
       is_current: data.is_current || false,
-      prompts: existingPrompts,
     })
     // Scroll left panel into view
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -290,7 +266,6 @@ export default function Admin() {
       week_number: Number(form.week_number),
       week_theme: form.week_theme.trim() || null,
       is_current: form.is_current,
-      discussion_points: form.prompts.filter(p => p.trim()).join(' | ') || null,
     }
 
     let error
@@ -473,32 +448,6 @@ export default function Admin() {
                   <div className="admin-field admin-field-full">
                     <label className="admin-label">Description</label>
                     <textarea className="admin-input admin-textarea" rows={4} value={form.description} onChange={e => updateForm('description', e.target.value)} />
-                  </div>
-
-                  <div className="admin-field admin-field-full">
-                    <label className="admin-label">Discussion Prompts</label>
-                    <p className="admin-field-hint">These appear on the Discussion page to guide conversation.</p>
-                    <div className="admin-prompts-list">
-                      {form.prompts.map((p, i) => (
-                        <div key={i} className="admin-prompt-row">
-                          <input
-                            className="admin-input"
-                            placeholder={`Prompt ${i + 1}…`}
-                            value={p}
-                            onChange={e => updatePrompt(i, e.target.value)}
-                          />
-                          <button
-                            type="button"
-                            className="admin-prompt-remove"
-                            onClick={() => removePrompt(i)}
-                            title="Remove prompt"
-                          >✕</button>
-                        </div>
-                      ))}
-                    </div>
-                    <button type="button" className="admin-prompt-add" onClick={addPrompt}>
-                      + Add Prompt
-                    </button>
                   </div>
 
                   <div className="admin-field admin-field-full">

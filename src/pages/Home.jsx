@@ -46,8 +46,10 @@ export default function Home() {
   }, [])
 
   function detectAndFetch() {
-    setCurrentWeek(1)
-    fetchCurrentWeekFilms(1)
+    const day = new Date().getDate()
+    const week = day <= 7 ? 1 : day <= 14 ? 2 : day <= 21 ? 3 : 4
+    setCurrentWeek(week)
+    fetchCurrentWeekFilms(week)
   }
 
   async function fetchUsername(userId) {
@@ -72,7 +74,8 @@ export default function Home() {
 
   async function fetchCurrentWeekFilms(week) {
     setLoading(true)
-    const monthYear = 'March 2026'
+    const now = new Date()
+    const monthYear = now.toLocaleString('en-US', { month: 'long', year: 'numeric' })
     const { data } = await supabase
       .from('films')
       .select('*')
