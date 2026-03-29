@@ -112,12 +112,13 @@ export default function Discussion() {
 
   async function fetchPosts(week) {
     const monthYear = getMonthYear(selectedDate)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('posts')
-      .select('*, profiles(username)')
+      .select('*')
       .eq('week_number', week)
       .eq('month_year', monthYear)
       .order('created_at', { ascending: false })
+    console.log('fetchPosts', { week, monthYear, data, error })
     setPosts(prev => ({ ...prev, [week]: data || [] }))
   }
 
@@ -490,7 +491,7 @@ export default function Discussion() {
                 </div>
                 <p className="disc-post-body">{post.body}</p>
                 <small className="meta">
-                  by {post.profiles?.username} · {new Date(post.created_at).toLocaleDateString()}
+                  {new Date(post.created_at).toLocaleDateString()}
                 </small>
               </div>
             ))
