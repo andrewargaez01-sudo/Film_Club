@@ -28,13 +28,6 @@ function detectCurrentWeek() {
   return 4
 }
 
-// Parse tag prefix from post title: [Film Title] or [VS]
-function parsePostTag(title) {
-  const match = title?.match(/^\[(.*?)\]\s*/)
-  if (!match) return { tag: null, cleanTitle: title }
-  return { tag: match[1], cleanTitle: title.slice(match[0].length) }
-}
-
 const defaultFilmPrompts = [
   'What were your first impressions?',
   'Which scene stood out the most?',
@@ -50,9 +43,8 @@ export default function Discussion() {
   const [activeWeek, setActiveWeek] = useState(detectCurrentWeek)
   const [posts, setPosts] = useState({})
   const [postInputs, setPostInputs] = useState({})
-  const [postTag, setPostTag] = useState('general')
-  const [filter, setFilter] = useState('all')
   const [showForm, setShowForm] = useState(false)
+  const [postError, setPostError] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [editingPrompts, setEditingPrompts] = useState(null) // { filmId, prompts[] }
   const [savingPrompts, setSavingPrompts] = useState(false)
@@ -134,30 +126,22 @@ export default function Discussion() {
     if (!user) return
     const monthYear = getMonthYear(selectedDate)
     const input = postInputs[activeWeek] || {}
-    const weekFilms = films.filter(f => f.week_number === activeWeek)
 
-    // Build title with tag prefix
-    let title = input.title
-    if (postTag === 'film0' && weekFilms[0]) {
-      title = `[${weekFilms[0].title}] ${input.title}`
-    } else if (postTag === 'film1' && weekFilms[1]) {
-      title = `[${weekFilms[1].title}] ${input.title}`
-    } else if (postTag === 'vs') {
-      title = `[VS] ${input.title}`
-    }
-
+    setPostError(null)
     const { error } = await supabase
       .from('posts')
       .insert({
         user_id: user.id,
-        title,
+        title: input.title,
         body: input.body,
         week_number: activeWeek,
         month_year: monthYear
       })
-    if (!error) {
+    if (error) {
+      setPostError(error.message)
+    } else {
       setPostInputs(prev => ({ ...prev, [activeWeek]: { title: '', body: '' } }))
-      setPostTag('general')
+      setShowForm(false)
       fetchPosts(activeWeek)
     }
   }
@@ -288,17 +272,7 @@ export default function Discussion() {
     )
   }
 
-  // Filter posts
   const weekPosts = posts[activeWeek] || []
-  const filteredPosts = weekPosts.filter(post => {
-    if (filter === 'all') return true
-    const { tag } = parsePostTag(post.title)
-    if (filter === 'vs') return tag === 'VS'
-    if (filter === 'general') return !tag
-    if (filter === 'film0') return tag === weekFilms[0]?.title
-    if (filter === 'film1') return tag === weekFilms[1]?.title
-    return true
-  })
 
   // Check which weeks have films
   const weeksWithFilms = new Set(films.map(f => f.week_number))
@@ -327,7 +301,7 @@ export default function Discussion() {
           return (
             <button
               key={week}
-              onClick={() => { setActiveWeek(week); setFilter('all') }}
+              onClick={() => setActiveWeek(week)}
               className={`disc-tab ${isActive ? (isCurrent ? 'now' : 'active') : ''}`}
               style={{ opacity: hasFilms ? 1 : 0.4 }}
             >
@@ -462,32 +436,6 @@ export default function Discussion() {
                         >×</button>
                       </div>
 
-                      <p className="disc-form-hint">What are you discussing?</p>
-                      {weekFilms.length >= 2 && (
-                        <div className="disc-tag-selector">
-                          <button
-                            type="button"
-                            className={`disc-tag-btn ${postTag === 'film0' ? 'active' : ''}`}
-                            onClick={() => setPostTag('film0')}
-                          >
-                            {weekFilms[0].title}
-                          </button>
-                          <button
-                            type="button"
-                            className={`disc-tag-btn ${postTag === 'film1' ? 'active' : ''}`}
-                            onClick={() => setPostTag('film1')}
-                          >
-                            {weekFilms[1].title}
-                          </button>
-                          <button
-                            type="button"
-                            className={`disc-tag-btn ${postTag === 'general' ? 'active' : ''}`}
-                            onClick={() => setPostTag('general')}
-                          >
-                            General
-                          </button>
-                        </div>
-                      )}
                       <form onSubmit={handlePost} className="disc-form">
                         <input
                           type="text"
@@ -503,6 +451,7 @@ export default function Discussion() {
                           required
                           rows={4}
                         />
+                        {postError && <p className="disc-form-error">{postError}</p>}
                         <div className="disc-form-actions">
                           <button type="submit">Post Discussion</button>
                         </div>
@@ -524,63 +473,27 @@ export default function Discussion() {
         <div className="disc-posts-section">
           <h3>💬 Discussions ({weekPosts.length})</h3>
 
-          {/* Filters */}
-          {weekFilms.length >= 2 && weekPosts.length > 0 && (
-            <div className="disc-filters">
-              <button
-                className={`disc-filter-btn ${filter === 'all' ? 'active' : ''}`}
-                onClick={() => setFilter('all')}
-              >All</button>
-              <button
-                className={`disc-filter-btn ${filter === 'film0' ? 'active' : ''}`}
-                onClick={() => setFilter('film0')}
-              >{weekFilms[0].title}</button>
-              <button
-                className={`disc-filter-btn ${filter === 'film1' ? 'active' : ''}`}
-                onClick={() => setFilter('film1')}
-              >{weekFilms[1].title}</button>
-              <button
-                className={`disc-filter-btn ${filter === 'general' ? 'active' : ''}`}
-                onClick={() => setFilter('general')}
-              >General</button>
-            </div>
-          )}
-
-          {filteredPosts.length === 0 ? (
+          {weekPosts.length === 0 ? (
             <div className="disc-no-posts">
-              {weekPosts.length === 0 ? (
-                <>
-                  <p>No one has started a discussion yet for this week.</p>
-                  {user && (
-                    <button className="disc-be-first-btn" onClick={() => setShowForm(true)}>
-                      Be the first to post
-                    </button>
-                  )}
-                </>
-              ) : (
-                <p>No posts match this filter.</p>
+              <p>No one has started a discussion yet for this week.</p>
+              {user && (
+                <button className="disc-be-first-btn" onClick={() => setShowForm(true)}>
+                  Be the first to post
+                </button>
               )}
             </div>
           ) : (
-            filteredPosts.map(post => {
-              const { tag, cleanTitle } = parsePostTag(post.title)
-              return (
-                <div key={post.id} className="disc-post">
-                  <div className="disc-post-title">
-                    {tag && (
-                      <span className={`disc-post-tag ${tag === 'VS' ? 'vs' : 'film'}`}>
-                        {tag === 'VS' ? 'VS' : tag}
-                      </span>
-                    )}
-                    <Link to={`/discussion/${post.id}`}>{cleanTitle}</Link>
-                  </div>
-                  <p className="disc-post-body">{post.body}</p>
-                  <small className="meta">
-                    by {post.profiles?.username} · {new Date(post.created_at).toLocaleDateString()}
-                  </small>
+            weekPosts.map(post => (
+              <div key={post.id} className="disc-post">
+                <div className="disc-post-title">
+                  <Link to={`/discussion/${post.id}`}>{post.title}</Link>
                 </div>
-              )
-            })
+                <p className="disc-post-body">{post.body}</p>
+                <small className="meta">
+                  by {post.profiles?.username} · {new Date(post.created_at).toLocaleDateString()}
+                </small>
+              </div>
+            ))
           )}
         </div>
       </div>
