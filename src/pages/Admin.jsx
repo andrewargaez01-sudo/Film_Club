@@ -201,11 +201,13 @@ export default function Admin() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: baseTitle, director: d.director, overview: d.overview })
         })
+        const data = await resp.json()
         if (resp.ok) {
-          const data = await resp.json()
           description = data.summary || description
+        } else {
+          console.error('Summary generation failed:', data.error)
         }
-      } catch (_) { /* fall back to TMDB overview */ }
+      } catch (err) { console.error('Summary fetch error:', err) }
     }
 
     setForm({
