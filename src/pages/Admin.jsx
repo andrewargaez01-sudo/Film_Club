@@ -190,9 +190,27 @@ export default function Admin() {
     const defaultMonth = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`
 
     const baseTitle = d.title || movie.title
+    const titleWithYear = movie.year ? `${baseTitle} (${movie.year})` : baseTitle
+
+    // Generate punchy summary via Claude
+    let description = d.overview || ''
+    if (d.overview) {
+      try {
+        const resp = await fetch('/api/generate-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: baseTitle, director: d.director, overview: d.overview })
+        })
+        if (resp.ok) {
+          const data = await resp.json()
+          description = data.summary || description
+        }
+      } catch (_) { /* fall back to TMDB overview */ }
+    }
+
     setForm({
-      title: movie.year ? `${baseTitle} (${movie.year})` : baseTitle,
-      description: d.overview || '',
+      title: titleWithYear,
+      description,
       poster_url: d.posterUrl || movie.posterUrl || '',
       posters: d.posters || [],
       trailer_url: d.trailer ? `https://www.youtube.com/watch?v=${d.trailer}` : '',
