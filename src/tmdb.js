@@ -74,6 +74,7 @@ export async function getMovieDetails(id) {
   return {
     id: data.id,
     title: data.title,
+    year: data.release_date?.slice(0, 4) || '',
     overview: data.overview,
     posterUrl: posterUrl(data.poster_path, 'w500'),
     posters: posterPaths.map(p => ({ thumb: posterUrl(p, 'w185'), full: posterUrl(p, 'w500') })),
