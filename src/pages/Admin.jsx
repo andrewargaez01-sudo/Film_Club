@@ -189,11 +189,9 @@ export default function Admin() {
     const now = new Date()
     const defaultMonth = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`
 
-    const year = d.year || movie.year
     const baseTitle = d.title || movie.title
-    console.log('year debug:', { dYear: d.year, movieYear: movie.year, year, baseTitle })
     setForm({
-      title: year ? `${baseTitle} (${year})` : baseTitle,
+      title: movie.year ? `${baseTitle} (${movie.year})` : baseTitle,
       description: d.overview || '',
       poster_url: d.posterUrl || movie.posterUrl || '',
       posters: d.posters || [],
