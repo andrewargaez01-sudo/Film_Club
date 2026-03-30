@@ -191,6 +191,7 @@ export default function Admin() {
 
     const year = d.year || movie.year
     const baseTitle = d.title || movie.title
+    console.log('year debug:', { dYear: d.year, movieYear: movie.year, year, baseTitle })
     setForm({
       title: year ? `${baseTitle} (${year})` : baseTitle,
       description: d.overview || '',
