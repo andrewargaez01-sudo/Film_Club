@@ -7,15 +7,19 @@ function getMonthYear(date) {
   return date.toLocaleString('default', { month: 'long', year: 'numeric' })
 }
 
+function getMonthStartMonday(date) {
+  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const dow = firstOfMonth.getDay()
+  const daysToMonday = dow === 0 ? 6 : dow - 1
+  return new Date(date.getFullYear(), date.getMonth(), 1 - daysToMonday)
+}
+
 function getWeekDates(week, date) {
-  const year = date.getFullYear()
-  const month = date.getMonth()
-  const startDay = (week - 1) * 7 + 1
-  const endDay = week === 4
-    ? new Date(year, month + 1, 0).getDate()
-    : week * 7
-  const start = new Date(year, month, startDay)
-  const end = new Date(year, month, endDay)
+  const monday = getMonthStartMonday(date)
+  const start = new Date(monday)
+  start.setDate(monday.getDate() + (week - 1) * 7)
+  const end = new Date(start)
+  end.setDate(start.getDate() + 6)
   const fmt = d => d.toLocaleDateString('default', { month: 'numeric', day: 'numeric' })
   return `${fmt(start)} - ${fmt(end)}`
 }
@@ -41,11 +45,10 @@ export default function FilmsOfMonth() {
   }, [selectedDate])
 
   function detectCurrentWeek() {
-    const day = new Date().getDate()
-    if (day <= 7) setCurrentWeek(1)
-    else if (day <= 14) setCurrentWeek(2)
-    else if (day <= 21) setCurrentWeek(3)
-    else setCurrentWeek(4)
+    const now = new Date()
+    const monday = getMonthStartMonday(now)
+    const daysDiff = Math.floor((now - monday) / (1000 * 60 * 60 * 24))
+    setCurrentWeek(Math.min(Math.floor(daysDiff / 7) + 1, 5))
   }
 
   function goToPreviousMonth() {
@@ -122,7 +125,7 @@ export default function FilmsOfMonth() {
           <p style={{ fontSize: '1.1rem' }}>No films scheduled for this month yet.</p>
         </div>
       ) : (
-        [1, 2, 3, 4].map(week => {
+        [1, 2, 3, 4, 5].map(week => {
           const weekFilms = films.filter(f => f.week_number === week)
           if (weekFilms.length === 0) return null
           const isCurrentWeek = isCurrentMonth() && week === currentWeek
