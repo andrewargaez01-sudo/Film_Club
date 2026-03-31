@@ -7,25 +7,41 @@ function getMonthYear(date) {
   return date.toLocaleString('default', { month: 'long', year: 'numeric' })
 }
 
+// Returns the Monday of the week that contains the 1st of the month
+function getMonthStartMonday(date) {
+  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const dow = firstOfMonth.getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+  const daysToMonday = dow === 0 ? 6 : dow - 1
+  return new Date(date.getFullYear(), date.getMonth(), 1 - daysToMonday)
+}
+
+// How many calendar weeks overlap with this month (max 5)
+function getWeeksInMonth(date) {
+  const lastOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  const monday = getMonthStartMonday(date)
+  let count = 0
+  const cur = new Date(monday)
+  while (cur <= lastOfMonth && count < 5) {
+    count++
+    cur.setDate(cur.getDate() + 7)
+  }
+  return count
+}
+
 function getWeekDates(week, date) {
-  const year = date.getFullYear()
-  const month = date.getMonth()
-  const startDay = (week - 1) * 7 + 1
-  const endDay = week === 4
-    ? new Date(year, month + 1, 0).getDate()
-    : week * 7
-  const start = new Date(year, month, startDay)
-  const end = new Date(year, month, endDay)
+  const monday = getMonthStartMonday(date)
+  const start = new Date(monday)
+  start.setDate(monday.getDate() + (week - 1) * 7)
+  const end = new Date(start)
+  end.setDate(start.getDate() + 6)
   const fmt = d => d.toLocaleDateString('default', { month: 'numeric', day: 'numeric' })
   return `${fmt(start)} - ${fmt(end)}`
 }
 
-function detectCurrentWeek() {
-  const day = new Date().getDate()
-  if (day <= 7) return 1
-  if (day <= 14) return 2
-  if (day <= 21) return 3
-  return 4
+function detectCurrentWeek(date = new Date()) {
+  const monday = getMonthStartMonday(date)
+  const daysDiff = Math.floor((date - monday) / (1000 * 60 * 60 * 24))
+  return Math.min(Math.floor(daysDiff / 7) + 1, 5)
 }
 
 const defaultFilmPrompts = [
@@ -292,7 +308,7 @@ setPosts(prev => ({ ...prev, [week]: data || [] }))
 
       {/* Week Tabs */}
       <div className="disc-tabs">
-        {[1, 2, 3, 4].map(week => {
+        {Array.from({ length: getWeeksInMonth(selectedDate) }, (_, i) => i + 1).map(week => {
           const isCurrent = isCurrentMonth() && week === currentWeek
           const isActive = week === activeWeek
           const tabFilms = films.filter(f => f.week_number === week)
