@@ -8,10 +8,15 @@ function getMonthYear(date) {
 }
 
 function getMonthStartMonday(date) {
-  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const year = date.getFullYear()
+  const month = date.getMonth()
+  const firstOfMonth = new Date(year, month, 1)
   const dow = firstOfMonth.getDay()
   const daysToMonday = dow === 0 ? 6 : dow - 1
-  return new Date(date.getFullYear(), date.getMonth(), 1 - daysToMonday)
+  const monday = new Date(year, month, 1 - daysToMonday)
+  const daysInMonth = monday.getMonth() !== month ? 7 - daysToMonday : 7
+  if (daysInMonth < 4) monday.setDate(monday.getDate() + 7)
+  return monday
 }
 
 function getWeekDates(week, date) {

@@ -7,22 +7,37 @@ function getMonthYear(date) {
   return date.toLocaleString('default', { month: 'long', year: 'numeric' })
 }
 
-// Returns the Monday of the week that contains the 1st of the month
+// Returns the first Monday whose week has ≥4 days in the month
 function getMonthStartMonday(date) {
-  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
-  const dow = firstOfMonth.getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+  const year = date.getFullYear()
+  const month = date.getMonth()
+  const firstOfMonth = new Date(year, month, 1)
+  const dow = firstOfMonth.getDay()
   const daysToMonday = dow === 0 ? 6 : dow - 1
-  return new Date(date.getFullYear(), date.getMonth(), 1 - daysToMonday)
+  const monday = new Date(year, month, 1 - daysToMonday)
+  // If this Monday is in the previous month, count how many days of the week are in this month
+  const daysInMonth = monday.getMonth() !== month ? 7 - daysToMonday : 7
+  if (daysInMonth < 4) monday.setDate(monday.getDate() + 7)
+  return monday
 }
 
-// How many calendar weeks overlap with this month (max 5)
+// Count weeks where ≥4 of 7 days fall in this month (max 5)
 function getWeeksInMonth(date) {
-  const lastOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  const year = date.getFullYear()
+  const month = date.getMonth()
+  const firstOfMonth = new Date(year, month, 1)
+  const lastOfMonth = new Date(year, month + 1, 0)
   const monday = getMonthStartMonday(date)
   let count = 0
   const cur = new Date(monday)
-  while (cur <= lastOfMonth && count < 5) {
-    count++
+  while (count < 5) {
+    if (cur > lastOfMonth) break
+    const weekEnd = new Date(cur)
+    weekEnd.setDate(cur.getDate() + 6)
+    const overlapStart = cur < firstOfMonth ? firstOfMonth : cur
+    const overlapEnd = weekEnd > lastOfMonth ? lastOfMonth : weekEnd
+    const days = Math.round((overlapEnd - overlapStart) / 86400000) + 1
+    if (days >= 4) count++
     cur.setDate(cur.getDate() + 7)
   }
   return count
@@ -41,7 +56,8 @@ function getWeekDates(week, date) {
 function detectCurrentWeek(date = new Date()) {
   const monday = getMonthStartMonday(date)
   const daysDiff = Math.floor((date - monday) / (1000 * 60 * 60 * 24))
-  return Math.min(Math.floor(daysDiff / 7) + 1, 5)
+  const week = Math.floor(daysDiff / 7) + 1
+  return Math.min(week, getWeeksInMonth(date))
 }
 
 const defaultFilmPrompts = [
