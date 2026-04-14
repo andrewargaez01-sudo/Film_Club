@@ -26,6 +26,50 @@ function StarRating({ score }) {
   )
 }
 
+function getMonthYear(date) {
+  return date.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function getMonthStartMonday(date) {
+  const year = date.getFullYear()
+  const month = date.getMonth()
+  const firstOfMonth = new Date(year, month, 1)
+  const dow = firstOfMonth.getDay()
+  const daysToMonday = dow === 0 ? 6 : dow - 1
+  const monday = new Date(year, month, 1 - daysToMonday)
+  const daysInMonth = monday.getMonth() !== month ? 7 - daysToMonday : 7
+  if (daysInMonth < 4) monday.setDate(monday.getDate() + 7)
+  return monday
+}
+
+function getWeeksInMonth(date) {
+  const year = date.getFullYear()
+  const month = date.getMonth()
+  const firstOfMonth = new Date(year, month, 1)
+  const lastOfMonth = new Date(year, month + 1, 0)
+  const monday = getMonthStartMonday(date)
+  let count = 0
+  const cur = new Date(monday)
+  while (count < 5) {
+    if (cur > lastOfMonth) break
+    const weekEnd = new Date(cur)
+    weekEnd.setDate(cur.getDate() + 6)
+    const overlapStart = cur < firstOfMonth ? firstOfMonth : cur
+    const overlapEnd = weekEnd > lastOfMonth ? lastOfMonth : weekEnd
+    const days = Math.round((overlapEnd - overlapStart) / 86400000) + 1
+    if (days >= 4) count++
+    cur.setDate(cur.getDate() + 7)
+  }
+  return count
+}
+
+function detectCurrentWeek(date = new Date()) {
+  const monday = getMonthStartMonday(date)
+  const daysDiff = Math.floor((date - monday) / (1000 * 60 * 60 * 24))
+  const week = Math.floor(daysDiff / 7) + 1
+  return Math.min(week, getWeeksInMonth(date))
+}
+
 export default function Home() {
   const [currentWeekFilms, setCurrentWeekFilms] = useState([])
   const [recentPosts, setRecentPosts] = useState([])
@@ -46,8 +90,7 @@ export default function Home() {
   }, [])
 
   function detectAndFetch() {
-    const day = new Date().getDate()
-    const week = day <= 7 ? 1 : day <= 14 ? 2 : day <= 21 ? 3 : 4
+    const week = detectCurrentWeek()
     setCurrentWeek(week)
     fetchCurrentWeekFilms(week)
   }
